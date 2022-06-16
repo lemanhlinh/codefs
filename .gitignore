@@ -4,7 +4,7 @@
 /.DS_Store
 /.DS_Store?
 /.vscode
-/vender
+/vendor
 /note_modules
 *.css.map
 webpack.config.js
