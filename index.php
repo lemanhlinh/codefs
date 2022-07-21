@@ -6,22 +6,15 @@
 //error_reporting(E_ALL);
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 include("includes/defines.php");
-include("vendor/autoload.php");
+//include("vendor/autoload.php");
 if (USE_BENMARCH) {
     require('libraries/Benchmark.class.php');
     Benchmark::startTimer();
 }
-//print_r($_REQUEST);
-//var_dump(phpinfo()) ;
 
 // session
 if (!isset($_SESSION)) {
     session_start();
-}
-$time = time() + 60 * 60 * 24 * 30;
-if (!isset($_COOKIE['city_store'])) {
-    setcookie('city_store', 1, $time, '/');
-    setcookie('city_store_name', 'Hà Nội', $time, '/');
 }
 include("includes/config.php");
 include("libraries/database/pdo.php");
