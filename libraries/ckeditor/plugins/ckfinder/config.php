@@ -51,7 +51,7 @@ $config['privateDir'] = array(
 
 $config['images'] = array(
     'maxWidth'  => 1600,
-    'maxHeight' => 1200,
+    'maxHeight' => 2000,
     'quality'   => 80,
     'sizes' => array(
         'small'  => array('width' => 480, 'height' => 320, 'quality' => 80),
