@@ -125,6 +125,7 @@ class UploadedFile extends File
         $resourceType = $this->workingFolder->getResourceType();
 
         if ($this->config->get('checkDoubleExtension')) {
+            $this->fileName = str_replace(array(":", "*", "?", "|", "/", " "), "_", $this->fileName);
             $this->fileName = Utils::replaceDisallowedExtensions($this->fileName, $resourceType);
         }
     }
