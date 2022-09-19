@@ -107,14 +107,14 @@ class FCKeditor
                 // config.filebrowserUploadUrl         = '';
                 // config.filebrowserImageUploadUrl    = '';
                 config.filebrowserFlashUploadUrl    = '';
-               config.removePlugins = 'wordcount';
+              
                 config.toolbarGroups = [
                     { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
                     { name: 'links', groups: [ 'links' ] },
                 ];                        
 
-                // config.removeButtons = 'NewPage,ExportPdf,Preview,Print,Save,Templates,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,CopyFormatting,RemoveFormat,Anchor,Flash';
-                config.removeButtons = 'Html5video,Maps,Save,NewPage,ExportPdf,Preview,Print,Templates,PasteText,PasteFromWord,Replace,Find,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,RemoveFormat,CopyFormatting,Blockquote,CreateDiv,Language,Anchor,Smiley,SpecialChar,Flash,About,Iframe,HorizontalRule,PageBreak,BidiLtr,BidiRtl,Outdent,Indent,Maps';
+              
+                config.removeButtons = 'Save,NewPage,ExportPdf,Preview,Print,Templates,Replace,Find,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,RemoveFormat,CopyFormatting,Language,Anchor,Smiley,SpecialChar,Flash,About,Iframe,HorizontalRule,PageBreak,BidiLtr,BidiRtl,Outdent,Indent,Maps';
 
                 CKEDITOR.replace( '".$this->InstanceName."',config,{
                 filebrowserBrowseUrl : '".URL_ROOT."libraries/ckeditor/plugins/ckfinder/ckfinder.html',

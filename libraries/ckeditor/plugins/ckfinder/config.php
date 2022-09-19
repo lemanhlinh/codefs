@@ -1,4 +1,5 @@
 <?php
+@session_start();
 
 /*
  * CKFinder Configuration File
@@ -11,7 +12,7 @@
 
 // Production
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
-ini_set('display_errors', 0);
+ini_set('display_errors', E_ALL);
 
 // Development
 // error_reporting(E_ALL);
@@ -26,7 +27,10 @@ $config = array();
 // https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_authentication
 
 $config['authentication'] = function () {
-    return true;
+    if( (isset($_SESSION["ad_logged"]) && ($_SESSION["ad_logged"] == 1)) || (isset($_COOKIE["cms_logged"]) && ($_COOKIE["cms_logged"] == 1) )){
+        return true;
+    }
+    return false;
 };
 
 /*============================ License Key ============================================*/
@@ -51,7 +55,7 @@ $config['privateDir'] = array(
 
 $config['images'] = array(
     'maxWidth'  => 1600,
-    'maxHeight' => 2000,
+    'maxHeight' => 9200,
     'quality'   => 80,
     'sizes' => array(
         'small'  => array('width' => 480, 'height' => 320, 'quality' => 80),
@@ -87,26 +91,14 @@ $config['resourceTypes'][] = array(
     'backend'           => 'default'
 );
 
-preg_match('#module=(.*?)&view#is',$_SERVER['HTTP_REFERER'],$module);
-
 $config['resourceTypes'][] = array(
     'name'              => 'Images',
     'directory'         => 'images',
     'maxSize'           => 0,
-    'allowedExtensions' => 'bmp,gif,jpeg,jpg,png,webp,svg',
+    'allowedExtensions' => 'bmp,gif,jpeg,jpg,png,svg',
     'deniedExtensions'  => '',
     'backend'           => 'default'
 );
-//if ($module[1] == 'contents'){
-//    $config['resourceTypes'][] = array(
-//        'name'              => 'Images',
-//        'directory'         => 'images/contents',
-//        'maxSize'           => 0,
-//        'allowedExtensions' => 'bmp,gif,jpeg,jpg,png',
-//        'deniedExtensions'  => '',
-//        'backend'           => 'default'
-//    );
-//}
 
 /*================================ Access Control =====================================*/
 // https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_roleSessionVar
@@ -142,14 +134,16 @@ $config['checkDoubleExtension'] = true;
 $config['disallowUnsafeCharacters'] = false;
 $config['secureImageUploads'] = true;
 $config['checkSizeAfterScaling'] = true;
-$config['htmlExtensions'] = array('html', 'htm', 'xml', 'js');
-$config['hideFolders'] = array('.*', 'CVS', '__thumbs');
+$config['htmlExtensions'] = array('html', 'htm', 'xml', 'js', 'svg');
+$config['hideFolders'] = array('.*', 'CVS', '__thumbs','large','small','resized');
 $config['hideFiles'] = array('.*');
-$config['forceAscii'] = false;
+$config['forceAscii'] = true;
 $config['xSendfile'] = false;
 
+
+
 // https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_debug
-$config['debug'] = false;
+$config['debug'] = true;
 
 /*==================================== Plugins ========================================*/
 // https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_plugins
