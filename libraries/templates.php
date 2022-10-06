@@ -39,15 +39,15 @@ class Templates
         $this->script_top = array();
         $this->script_bottom = array();
         $item_id = FSInput::get('Itemid');
-        array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/jquery.lazyloadxt.fadein.min.css" . VERSION);
-        if ($item_id != 1) {
-            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/bootstrap.min.css" . VERSION);
-            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/responsive.css" . VERSION);
-            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/theme.css" . VERSION);
-            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/font-awesome.min.css" . VERSION);
-        }else {
-            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/bootstraphome.css" . VERSION);
-        }
+//        array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/jquery.lazyloadxt.fadein.min.css" . VERSION);
+//        if ($item_id != 1) {
+//            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/bootstrap.min.css" . VERSION);
+//            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/responsive.css" . VERSION);
+//            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/theme.css" . VERSION);
+//            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/font-awesome.min.css" . VERSION);
+//        }else {
+//            array_push($this->style, URL_ROOT . "templates/" . TEMPLATE . "/css/bootstraphome.css" . VERSION);
+//        }
 //        array_push($this->script_bottom, URL_ROOT . "libraries/jquery/owlcarousel/owl.carousel.min.js" . VERSION);
 //        array_push($this->script_bottom, URL_ROOT . "templates/" . TEMPLATE . "/js/jquery.lazyloadxt.js" . VERSION);
 //        array_push($this->script_bottom, URL_ROOT . "templates/" . TEMPLATE . "/js/bootstrap.min.js" . VERSION);
@@ -371,7 +371,7 @@ class Templates
         <meta name="geo.placename" content="Hanoi, Vietnam"/>
         <?php echo $this->style_amp; ?>
         <link type='image/x-icon' href='<?php echo URL_ROOT . "/images/favicon.ico"; ?>' rel='icon'/>
-        
+
     <?php } else { ?>
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html lang="vi">
@@ -383,13 +383,13 @@ class Templates
         <meta name="keywords" content="<?php echo $meta_key; ?>"/>
         <meta name="description" content="<?php echo $meta_des; ?>"/>
 <?php if (@$this->str_header) { $str_header = str_replace(array('<p>', '</p>', '<br/>', '<br />'), '', $this->str_header); echo $str_header; } ?>
-        <meta name='author' content='didongthongminh'/>
+        <meta name='author' content='finalstyle'/>
         <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
         <?php
         echo '<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,user-scalable=0">';
         ?>
         <link type='image/x-icon' href='<?php echo URL_ROOT . "images/favicon.ico"; ?>' rel='icon'/>
-        <meta property="og:site_name" content="didongthongminh.vn"/>
+        <meta property="og:site_name" content="finalstyle.com"/>
         <meta property="og:type" content="website"/>
         <meta property="og:locale" content="vi_VN"/>
         <meta itemprop="description" content="<?php echo $meta_des; ?>"/>
@@ -436,29 +436,6 @@ class Templates
             $this->compress_css($arr_style);
         }
         ?>
-        <script type='application/ld+json'>{
-		"@context":"https:\/\/schema.org",
-		"@type":"Organization",
-		"url":" https://didongthongminh.vn/",
-		"sameAs":[" https://www.facebook.com/didongthongminh.vn/"," https://www.youtube.com/c/dreview"],
-		"@id":"#organization",
-		"name":"didongthongminh.vn",
-		"logo":"https://didongthongminh.vn/images/logo 1.svg"
-		}
-        </script>
-        <script type='application/ld+json'>
-            {"@context":"https:\/\/schema.org",
-            "@type":"WebSite",
-            "@id":"#website",
-            "url":"https:\/\/didongthongminh.vn\/",
-            "name":"didongthongminh.vn",
-            "potentialAction":{
-                "@type":"SearchAction",
-                "target":"https://didongthongminh.vn/tim-kiem/{search_term_string}",
-                "query-input":"required name=search_term_string"
-                }
-            }
-        </script>
         <link rel="alternate" type="application/rss+xml" title="<?php echo $config ['site_name'] ?> Feed" href="<?php echo URL_ROOT; ?>rss.xml"/>
         <?php echo $this->style_amp; ?>
     <?php } ?>
@@ -466,66 +443,24 @@ class Templates
         <?php if ($this->on_amp) { ?>
         <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
         <amp-analytics config="https://www.googletagmanager.com/amp.json?id=UA-39352618-1" data-credentials="include"></amp-analytics>
-        <?php } else {
-        $Itemid = FSInput::get('Itemid');
-            if($Itemid != 1) {
-        ?>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-39352618-1"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'UA-39352618-1');
-        </script>
-        <script>(function (w, d, s, l, i) {
-                w[l] = w[l] || [];
-                w[l].push({
-                    'gtm.start':
-                        new Date().getTime(), event: 'gtm.js'
-                });
-                var f = d.getElementsByTagName(s)[0],
-                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-                j.async = true;
-                j.src =
-                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-                f.parentNode.insertBefore(j, f);
-            })(window, document, 'script', 'dataLayer', 'GTM-M6G2BFM');</script>
         <?php } ?>
-<!--        <script src="/libraries/jquery/jquery-2.2.0.min.js"></script>-->
-    <?php } ?>
     </head>
         <body>
     <?php }
 
     function loadFooter()
     {
-        if ($this->on_amp) {
-        } else {
-            $item_id = FSInput::get('Itemid');
-            if ($item_id != 1) {
-        ?>  
-            <div id="fb-root"></div>
-            <div id="fb-customer-chat" class="fb-customerchat">
-            </div>
-            <script  data-type='lazy'>var chatbox=document.getElementById("fb-customer-chat");chatbox.setAttribute("page_id","308356949312694"),chatbox.setAttribute("attribution","biz_inbox");</script>
-            <script data-type='lazy'>window.fbAsyncInit=function(){FB.init({xfbml:!0,version:"v12.0"})},function(e,t,n){var c,o=e.getElementsByTagName(t)[0];e.getElementById(n)||((c=e.createElement(t)).id=n,c.src="https://connect.facebook.net/vi_VN/sdk/xfbml.customerchat.js",o.parentNode.insertBefore(c,o))}(document,"script","facebook-jssdk");</script>
-            <script  data-type='lazy' data-src='https://cdn.bitrix24.vn/b19243465/crm/site_button/loader_4_blkimy.js' type='text/javascript' charset='UTF-8' async></script>
-        <?php  } ?>
-            
-        <?php
-
-            $arr_script_bottom = array_unique($this->script_bottom);
-            $arr_script_top = $this->script_top;
-            $arr_script_bottom = array_diff_assoc($arr_script_bottom, $arr_script_top);
-            if (!COMPRESS_JS) {
-                if (count($arr_script_bottom)) {
-                    foreach ($arr_script_bottom as $item) {
-                        echo "<script language=\"javascript\" type=\"text/javascript\" src=\"$item\" ></script>";
-                    }
+        $arr_script_bottom = array_unique($this->script_bottom);
+        $arr_script_top = $this->script_top;
+        $arr_script_bottom = array_diff_assoc($arr_script_bottom, $arr_script_top);
+        if (!COMPRESS_JS) {
+            if (count($arr_script_bottom)) {
+                foreach ($arr_script_bottom as $item) {
+                    echo "<script language=\"javascript\" type=\"text/javascript\" src=\"$item\" ></script>";
                 }
-            } else {
-                echo $this->compress_js($arr_script_bottom);
             }
+        } else {
+            echo $this->compress_js($arr_script_bottom);
         }
     }
 
