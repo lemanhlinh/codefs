@@ -29,12 +29,12 @@
 
    <!-- DataTables CSS -->
     <link href="templates/default/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet">
-   
+
     <!-- DataTables Responsive CSS -->
     <link href="templates/default/bower_components/datatables-responsive/css/dataTables.responsive.css" rel="stylesheet">
     <!-- DataTables Responsive CSS -->
     <link rel="stylesheet" href="templates/default/css/chosen.css">
-    
+
     <link rel="stylesheet" href="templates/default/css/bootstrap-datetimepicker.min.css" />
     <!-- DataTables Responsive CSS -->
     <link href="templates/default/css/styles.css?ver=1.5" rel="stylesheet">
@@ -47,6 +47,13 @@
     <script type="text/javascript" src="templates/default/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="<?php echo URL_ROOT; ?>libraries/ckeditor/ckeditor.js"></script>
 	<script type="text/javascript" src="<?php echo URL_ROOT; ?>libraries/ckeditor/plugins/ckfinder/ckfinder.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
     <script>CKEDITOR.dtd.$removeEmpty['span'] = false;</script>
 </head>
 
@@ -54,12 +61,12 @@
         <div id="wrapper">
         <!-- Navigation -->
         <?php include 'navbar.php'; ?>
-        
+
         <div id="page-wrapper">
-            <?php 
+            <?php
                 global $toolbar;
                 echo $toolbar->show_head_form();
-                echo $main_content; 
+                echo $main_content;
             ?>
         </div>
         <!-- /#page-wrapper -->
@@ -69,7 +76,7 @@
         <i class="fa fa-arrow-circle-up"></i>
     </div>
     <!-- jQuery -->
-    
+
     <script type="text/javascript" src="templates/default/js/helper.js"></script>
     <!-- Bootstrap Core JavaScript -->
     <script src="templates/default/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -79,7 +86,7 @@
 
     <!-- Morris Charts JavaScript -->
     <script src="templates/default/bower_components/raphael/raphael-min.js"></script>
-    
+
     <!-- DataTables JavaScript -->
     <script src="templates/default/bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
     <script src="templates/default/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>

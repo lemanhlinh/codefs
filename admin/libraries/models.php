@@ -1,4 +1,4 @@
-<?php 
+<?php
 	class FSModels
 	{
 		var $limit;
@@ -10,22 +10,22 @@
 		var $call_update_sitemap;
 		var $field_except_when_duplicate; // this field is updated auto follow other field ( not update by REQUEST ). Example : list_parents
 		var $field_reset_when_duplicate; // các trường không duplicate VD: hits,.... định dạng: array('hits','comments_unread',...)
-		
-		// đồng bộ dữ liệu ngoài bảng extend. Viết dang  array(tablename => array(field1_curent => field1_remote, field2_curent =>field2_remote,...)): 
+
+		// đồng bộ dữ liệu ngoài bảng extend. Viết dang  array(tablename => array(field1_curent => field1_remote, field2_curent =>field2_remote,...)):
 		//trường 1 dùng để so sánh với id của dữ liêu
-		var $array_synchronize = array(); 
+		var $array_synchronize = array();
 		var $use_table_extend;  // use table extend. Example: fs_products_mobile
 		var $type;  // ex: products, pharmacology
 		var $calculate_filters;  // 1: calculate filters
-		var $module_params;  // 
-		var $image_watermark = array(); 
+		var $module_params;  //
+		var $image_watermark = array();
 		function __construct()
 		{
 			$module = FSInput::get('module');
 			$view = FSInput::get('view',$module);
 			$this -> module = $module;
 			$this -> view = $view;
-		
+
 			$page = FSInput::get('page',0,'int');
 			$this->page = $page;
 
@@ -38,14 +38,14 @@
 //			$this -> img_folder = '';
 			$this -> load_params();
 		}
-		
+
 		/*
 		 * Lấy tham số từ bảng module_config để cấu hình cho từng module
 		 */
 		function load_params(){
-			
+
 		}
-		
+
 		function get_data($value)
 		{
 				$value = $value? $value:'';
@@ -71,13 +71,13 @@
 				$ordering = '';
 				if($sort_field)
 					$ordering .= " ORDER BY $sort_field $sort_direct, id DESC ,created_time DESC ";
-					
+
 			}
 			if(!$ordering)
 				$ordering .= " ORDER BY  id DESC, created_time DESC ";
-			
+
 			$where = "  ";
-			
+
 			if(isset($_SESSION[$this -> prefix.'keysearch'] ))
 			{
 				if($_SESSION[$this -> prefix.'keysearch'] )
@@ -86,14 +86,14 @@
 					$where .= " AND ".$field_search." LIKE '%".$keysearch."%' ";
 				}
 			}
-			
+
 			$query = " SELECT a.*
 						  FROM 
 						  	".$this -> table_name ." AS a
 						  	WHERE 1=1 ".
 						 $where.
 						 $ordering. " ";
-						
+
 			return $query;
 		}
 		/*
@@ -101,22 +101,22 @@
 		 */
 		function getTotal($value)
 		{
-		    $value = $value? $value:'';       
+		    $value = $value? $value:'';
 			global $db;
 			$query = $this->setQuery($value);
 			$total = $db->getTotal($query);
 			return $total;
 		}
-		
+
 		function getPagination($value = '')
 		{
 						$value = $value? $value:'';
                 $total = $this->getTotal($value);
                 $pagination = new Pagination($this->limit,$total,$this->page);
                 return $pagination;
-			
+
 		}
-	
+
 		/*
 		 * get info of Category
 		 */
@@ -134,7 +134,7 @@
 			return $result;
 		}
 		/*
-		 * get record 
+		 * get record
 		 */
 		function get_record($where = '',$table_name = '',$select = '*')
 		{
@@ -170,12 +170,12 @@
 
 		if(!$field_key)
 			$result = $db->getObjectList($query);
-		else 
+		else
 			$result = $db->getObjectListByKey($field_key,$query);
-    
+
 		return $result;
 	}
-		
+
 		function get_count($where = '',$table_name = ''){
 			if(!$where)
 				return;
@@ -184,12 +184,12 @@
 			$query = " SELECT count(*)
 						  FROM ".$table_name."
 						  WHERE ".$where ;
-			
+
 			global $db;
 			$result = $db->getResult($query);
 			return $result;
 		}
-		
+
 		/*
 		 * Return result
 		 */
@@ -201,12 +201,12 @@
 			$select = " SELECT ".	$field ." ";
 			$query = $select."  FROM ".$table_name."
 						  WHERE ".$where ;
-			
+
 			global $db;
 			$result = $db->getResult($query);
 			return $result;
 		}
-	
+
 		function get_field_by_id($id,$field,$table_name = '')
 		{
 			if(!$id)
@@ -232,12 +232,12 @@
 			$query = " SELECT *
 						  FROM ".$table_name."
 						  WHERE rid = $id ";
-			
+
 			global $db;
 			$result = $db->getObject($query);
 			return $result;
 		}
-		
+
 		/*
 		 * remove record
 		 * $img_field is image field need remove.
@@ -263,21 +263,21 @@
 				return false;
 			$str_cids = implode(',',$cids);
 
-			$field_img = isset($this -> field_img)?$this -> field_img:'';	
+			$field_img = isset($this -> field_img)?$this -> field_img:'';
 			$use_table_extend = isset($this -> use_table_extend)?$this -> use_table_extend:0;
-            
+
 			// array table_names is changed. ( for calculate filter)
-			$arr_table_name_changed = array();				
-			
+			$arr_table_name_changed = array();
+
 			if($field_img || $use_table_extend){
 
-			    //print_r(123);die;   
+			    //print_r(123);die;
 				$select = 'id';
 				if($field_img)
 					$select .= ','.$field_img;
 				if($use_table_extend)
 					$select .= ',tablename';
-					
+
 				$query = " SELECT ".$select." FROM ".$this -> table_name."
 						WHERE id IN (".$str_cids.") ";
 				global $db;
@@ -286,24 +286,24 @@
 					return;
 
 				foreach($result as $item){
-					// remove img					
+					// remove img
 					if($field_img){
 						$old_image = $item -> $field_img;
-						
+
 						$arr_img_paths = $this -> arr_img_paths;
 						if(count($arr_img_paths)){
 							foreach($arr_img_paths as $item_path){
 								$path_resize = str_replace('/original/', '/'.$item_path[0].'/', $old_image);
 								$path_resize = PATH_BASE.str_replace('/',DS,$path_resize);
-								unlink($path_resize); 
-							}	
+								unlink($path_resize);
+							}
 						}
 						$old_image = PATH_BASE.str_replace('/',DS, $old_image);
-						unlink($old_image); 
-					} 
+						unlink($old_image);
+					}
 					if($use_table_extend){
 						// remove data in table fs_Type_extend
-						$table_extend = $item -> tablename; 
+						$table_extend = $item -> tablename;
 						// for caculator filters
 						$arr_table_name_changed[] = $table_extend;
 						if($table_extend){
@@ -311,7 +311,7 @@
 								$this -> _remove('record_id  = '.$item -> id,$table_extend);
 						}
 					}
-					
+
 					//synchronize
 					$array_synchronize = $this -> array_synchronize;
 					if(count($array_synchronize)){
@@ -334,7 +334,7 @@
 
 			global $db;
 			$rows = $db->affected_rows($sql);
-			
+
 			// update sitemap
 			if($this -> call_update_sitemap){
 				$this -> call_update_sitemap();
@@ -359,7 +359,7 @@
 		function published($value)
 		{
 			$ids = FSInput::get('id',array(),'array');
-			
+
 			if(count($ids))
 			{
 				global $db;
@@ -368,13 +368,13 @@
 							SET published = $value
 						WHERE id IN ( $str_ids ) " ;
 				$rows = $db->affected_rows($sql);
-				
+
 				// 	update sitemap
 				if($this -> call_update_sitemap){
 					$this -> call_update_sitemap();
 				}
 				// array table_names is changed. ( for calculate filter)
-				$arr_table_name_changed = array();				
+				$arr_table_name_changed = array();
 				// update table fs_TYPE_extend
 				if($this -> use_table_extend){
 					foreach($ids as $id){
@@ -413,14 +413,14 @@
 						}
 					}
 				}
-				
+
 				// calculate filters:
 //				if($this -> calculate_filters){
 //					$this -> caculate_filter($arr_table_name_changed);
 //				}
 				return $rows;
 			}
-			
+
 			return 0;
 		}
 		/*
@@ -434,12 +434,12 @@
 			$field_except = $this -> field_except_when_duplicate;
 			$arr_fields_reset = $this -> field_reset_when_duplicate; // các trường không duplicate dữ liệu sang
 			$time = date('Y-m-d H:i:s');
-			
+
 			if(count($ids)){
 				global $db;
 				$str_ids = implode(',',$ids);
 				$records  = $this -> get_records(' id IN ('.$str_ids.')' ,$this -> table_name );
-                
+
 				if(!count($records))
 					return false;
 				foreach($records as $item){
@@ -463,20 +463,20 @@
     							continue;
     						}
     						if($key == 'edited_time' || $key == 'created_time' || $key == 'updated_time'){
-    							$row[$key]  =   $time;	
+    							$row[$key]  =   $time;
     							continue;
     						}
-                            
+
     						if(isset($arr_fields_reset) && in_array($key,$arr_fields_reset)){
-    							$row[$key]  =   null;	
+    							$row[$key]  =   null;
     							continue;
     						}
-    							
+
     						$row[$key] = $value;
                         }
 					}
 					//print_r($row);die;
-                    
+
 					if(!$key1)
 						continue;
 					$j = 0;
@@ -485,7 +485,7 @@
 							$key1_copy = $key1.' copy';
 							$key2_copy = $key2.'-copy';
 							$suffix_new = '-copy';
-						} else { 
+						} else {
 							$key1_copy = $key1.' copy '.$j;
 							$key2_copy = $key2.'-copy-'.$j;
 							$suffix_new = '-copy-'.$j;
@@ -493,8 +493,8 @@
 						$where = $field_key1.' = "'.$db -> escape_string($key1_copy).'" OR alias = "'.$db -> escape_string($key2_copy).'" ';
 						$check_exist = $this -> get_count($where,$this -> table_name);
 						if(!$check_exist){
-							$row[$field_key1]= 	$key1_copy;					
-							$row['alias']	= 	$key2_copy;		
+							$row[$field_key1]= 	$key1_copy;
+							$row['alias']	= 	$key2_copy;
 							break;
 						}
 						$j ++;
@@ -513,12 +513,12 @@
 						// except : wrapper_alias, list_parents
 						if($field_except && count($field_except)){
 							foreach($field_except as $f){
-								$row2[$f[0]] = str_replace(','.$item -> $f[1].','  ,  ','.$new_record -> $f[1].',' , $row[$f[0]]);				
+								$row2[$f[0]] = str_replace(','.$item -> $f[1].','  ,  ','.$new_record -> $f[1].',' , $row[$f[0]]);
 							}
 							$this -> _update($row2, $this -> table_name, ' id = '.$new_record_id);
 						}
-						
-						
+
+
 						// duplicate data extend
 						if($this -> use_table_extend){
 							$row3 = array();
@@ -528,7 +528,7 @@
 							$table_extend = $item -> tablename;
 							// for caculator filters
 							$arr_table_name_changed[] = $table_extend;
-							
+
 							if($table_extend && $table_extend != 'fs_products' && $db -> checkExistTable($table_extend)){
 								$record_extend = $this -> get_record('record_id = '.$item -> id,$table_extend);
 								foreach($record_extend as $field_ext_name => $field_ext_value){
@@ -542,13 +542,13 @@
 										$row3[$field_ext_name] = $row['name'];
 										continue;
 									}
-									$row3[$field_ext_name] = $db -> escape_string($field_ext_value);	
+									$row3[$field_ext_name] = $db -> escape_string($field_ext_value);
 								}
 								if(!$this -> _add($row3, $table_extend))
 									continue;
 							}
 						}
-						
+
 						$rs ++;
 					}
 				}
@@ -562,7 +562,7 @@
 //				}
 				return $rs;
 			}
-			
+
 			return 0;
 		}
 		/*
@@ -591,23 +591,23 @@
 				return 1;
 			return ($result + 1);
 		}
-		
+
 		/*
 		 * get field of table
 		 */
 		function get_field_table($table_name = '',$key_field_name = 0){
-			if(!$table_name)	
+			if(!$table_name)
 				$table_name = $this -> table_name;
 			global $db;
 			$query = "SHOW COLUMNS FROM ".$table_name." ";
 			$db->query($query);
 			if($key_field_name)
 				$fields_in_table = $db->getObjectListByKey('Field');
-			else 
+			else
 				$fields_in_table = $db->getObjectList();
 			return $fields_in_table;
 		}
-		
+
 		/*
 		 * save into table
 		 */
@@ -621,10 +621,10 @@
 
 			if(!$id)
 				return $this -> save_new($row,$use_mysql_real_escape_string);
-			else 
+			else
 				return $this -> save_change($id,$row,$use_mysql_real_escape_string);
 		}
-		
+
 		function save_new($row,$use_mysql_real_escape_string = 0){
 			$fields_in_table = $this -> get_field_table();
 			global $db;
@@ -632,7 +632,7 @@
 			$str_values = array();
 			$field_img = isset($this -> field_img)?$this -> field_img:'image';
 			$field_width =isset($this -> field_width)?$this -> field_width:'';
-			
+
 			for($i = 0; $i < count($fields_in_table); $i ++){
 				$item = $fields_in_table[$i];
 				$field  = $item -> Field;
@@ -685,43 +685,43 @@
                         $row[$field] = str_replace("'","\'",$row[$field]);
                     }
 					$str_fields[] =   "`".$field."`";
-					$str_values[]  =   "'".$row[$field]."'";					
+					$str_values[]  =   "'".$row[$field]."'";
 				} else if(isset($_POST[$field])){
 					$type  = $item -> Type;
 					$value = FSInput::get($field);
 					if(strpos($value,"'") !== false){
                         $value = str_replace("'","\'",$value);
-                    }	
+                    }
 					if(strpos($type,'text') !== false || strpos($type,'varchar') !== false){
 						$str_fields[] =   "`".$field."`";
 							$str_values[]  =   "'".$value."'";
-					
-					}else { 
+
+					}else {
 						$str_fields[] =   "`".$field."`";
-						$str_values[]  =   "'".$value."'";	
+						$str_values[]  =   "'".$value."'";
 					}
 				} else {
 					if($field == 'edited_time' || $field == 'created_time' || $field == 'updated_time'){
 						$time = date('Y-m-d H:i:s');
 						$str_fields[] =   "`".$field."`";
-						$str_values[]  =   "'".$time."'";	
+						$str_values[]  =   "'".$time."'";
 					}
 				}
 			}
 			if(!count($str_fields))
 				return false;
-			
+
 			$str_fields = implode(',',$str_fields);
 			$str_values = implode(',',$str_values);
-            
-			
+
+
 			$sql = ' INSERT INTO  '.$this -> table_name ;
 			$sql .=  '('.$str_fields.") ";
 			$sql .=  'VALUES ('.$str_values.") ";
-			
+
 			//print_r($sql);die;
 			$id = $db->insert($sql);
-			
+
 			// calculate filters:
 			if($this -> calculate_filters){
 				// chỉ tính toán đếm bộ lọc khi có bảng mở rộng
@@ -733,8 +733,8 @@
 						Errors::setError ( 'C&#243; l&#7895;i khi l&#432;u ph&#7847;n m&#7903; r&#7897;ng' );
 					}
 				}
-				
-				$arr_table_name_changed = array();	
+
+				$arr_table_name_changed = array();
 				if(isset($row['tablename']) && !empty($row['tablename']))
 					$arr_table_name_changed[] = $row['tablename'];
 //				$this -> caculate_filter($arr_table_name_changed);
@@ -744,7 +744,7 @@
             $memcache->flush();
 			return $id;
 		}
-		
+
 		/*
 		 * Update:
 		 * update field from :row, time and request
@@ -757,22 +757,22 @@
 			$str_update = array();
 			$field_img = isset($this -> field_img)?$this -> field_img:'image';
 			$field_width =isset($this -> field_width)?$this -> field_width:'';
-		
+
 
 			// mảng  $row1 này chỉ phục vụ cho việc đồng bộ dữ liệu ra bảng ngoài theo cấu hình $array_synchronize
-				
+
 			for($i = 0; $i < count($fields_in_table); $i ++){
 				$item = $fields_in_table[$i];
 				$field  = $item -> Field;
-				
+
 				if($field == $field_img && !isset($row[$field_img]) && $field_img){
 					$image = $_FILES[$field_img]["name"];
 					if($image){
 						// remove old if exists record and img
 						$this -> remove_old_image($id,$field_img);
-						
+
 						$image = $this -> upload_image($field_img,'_'.time(),10000000);
-						
+
 						$row[$field_img] = 	$image;
 					if($field_width){
 							// tính chiều rộng để thêm vào admin
@@ -799,7 +799,7 @@
 							$row['alias'] = $fsstring -> stringStandart($title);
 						} else {
 							$row['alias'] = $fsstring -> stringStandart($alias);
-							
+
 						}
 					}
 					if($this -> check_alias){
@@ -810,17 +810,17 @@
 						}
 					}
 				}
-               
+
 				if(isset($row[$field])){
 					$str_update[] = "`".$field."` = '".$row[$field]."'";
 				} else if(isset($_POST[$field])){
 					$type  = $item -> Type;
-					
+
 					$value = $_POST[$field];
-					
+
 					if(strpos($type,'text') !== false || strpos($type,'varchar') !== false){
-						$row[$field] = $value;	
-					}else{ 
+						$row[$field] = $value;
+					}else{
 //						$str_update[] = "`".$field."` = '".$_POST[$field]."'";
 						$row[$field] = $_POST[$field];// synchronize
 					}
@@ -859,12 +859,12 @@
 					if($syn)
 						$rs = $this -> _update($row5,$table_name, $where,0 );
 				}
-				
+
 			}
-			
-			// 	calculate filters: 
+
+			// 	calculate filters:
 			if($this -> calculate_filters){
-				
+
 				// chỉ tính toán đếm bộ lọc khi có bảng mở rộng
 				$tablename = $row['tablename'];
 				// save extension
@@ -874,8 +874,8 @@
 						Errors::setError ( 'C&#243; l&#7895;i khi l&#432;u ph&#7847;n m&#7903; r&#7897;ng' );
 					}
 				}
-				
-				$arr_table_name_changed = array();	
+
+				$arr_table_name_changed = array();
 				if(isset($row['tablename']) && !empty($row['tablename']))
 					$arr_table_name_changed[] = $row['tablename'];
 			}
@@ -889,19 +889,19 @@
 			else
 				return 0;
 		}
-		
+
 		/*
 		 * Change alias of category in table_item (news,products,...)
 		 */
 		function _update($row,$table_name,$where = '',$use_mysql_real_escape_string = 1){
 			global $db;
-                        
+
 			$total = count($row);
 			if(!$total || !$table_name )
 				return ;
 			$sql = 'UPDATE '.$table_name.' SET ';
 			$i = 0;
-			
+
 			foreach($row as $key => $value){
 				if($use_mysql_real_escape_string){
 				    if(strpos($value,"'") !== false){
@@ -912,13 +912,13 @@
 					}else{
 						$sql .= "`".$key."` = '".$db -> escape_string($value)."'";
 					}
-				}else{ 
+				}else{
 					$sql .= "`".$key."` = '".$value."'";
-				}	
+				}
 				if($i < $total - 1)
 					$sql .=  ',';
 				$i ++;
-				
+
 			}
 			if($where)
 				$where = ' WHERE '.$where;
@@ -930,26 +930,26 @@
 		function _add($row,$table_name,$use_mysql_real_escape_string = 0){
 			if(!$table_name)
 				return false;
-			global $db;	
+			global $db;
 			$str_fields = array();
 			$str_values = array();
-			
+
 			if(!count($row))
 				return;
 			foreach($row as $field => $value){
 				if($use_mysql_real_escape_string){
-					$value = $db -> escape_string($value);	
-				
+					$value = $db -> escape_string($value);
+
 				}
 				$str_fields[] =   "`".$field."`";
 				$str_values[]  =   "'".$value."'";
 			}
-			
+
 			$str_fields = implode(',',$str_fields);
 			$str_values = implode(',',$str_values);
-			
+
 			global $db;
-			
+
 			$sql = ' INSERT INTO  '.$table_name ;
 			$sql .=  '('.$str_fields.') ';
 			$sql .=  'VALUES ('.$str_values.') ';
@@ -957,16 +957,16 @@
 			$id = $db->insert($sql);
 			return $id;
 		}
-		
+
 		function _add_multi($rows,$table_name,$use_mysql_real_escape_string = 0){
 			if(!$table_name)
 				return false;
 			$str_fields = '';
 			$str_fields2 = array(); // luu dang ko co "`"
-			
+
 			if(!count($rows))
 				return;
-			global $db;	
+			global $db;
 			$row_first = $rows[0];
 			foreach($row_first as $field => $value){
 				if($str_fields)
@@ -974,19 +974,19 @@
 				$str_fields .=   "`".$field."`";
 				$str_fields2[] =   $field;
 			}
-			$str_values = ''; 
+			$str_values = '';
 			$i = 0;
 			foreach($rows as $row){
 				if($i)
 					$str_values .= ',';
-				$str_values .= '(';	
+				$str_values .= '(';
 				$k = 0;
 				foreach($str_fields2 as $field){
 					if($k)
 						$str_values .= ',';
 					$value = isset($row[$field])?$row[$field]:'';
 					if($use_mysql_real_escape_string){
-						$value = $db -> escape_string($value);	
+						$value = $db -> escape_string($value);
 					}else{
 					}
 					$str_values  .=   "'".$value."'";
@@ -995,16 +995,16 @@
 				$str_values .= ')';
 				$i ++;
 			}
-			
-			
+
+
 			$sql = ' INSERT INTO  '.$table_name ;
 			$sql .=  '('.$str_fields.") ";
 			$sql .=  'VALUES '.$str_values." ";
-			
+
 			$id = $db->insert($sql);
 			return $id;
 		}
-		
+
 		/*
 		 * Value need remove
 		 */
@@ -1020,7 +1020,7 @@
 			$rows = $db->affected_rows($sql);
 			return $rows;
 		}
-		
+
 		/*
 		 * Return result
 		 */
@@ -1032,12 +1032,12 @@
 			$select = " SELECT ".	$field ." ";
 			$query = $select."  FROM ".$table_name."
 						  WHERE ".$where ;
-			
+
 			global $db;
 			$result = $db->getResult($query);
 			return $result;
 		}
-		
+
 		/*
 		 * Update only param call
 		 */
@@ -1046,33 +1046,33 @@
 				$table_name = $this -> table_name;
 			if(!count($row))
 				return;
-				
+
 			$str_update = array();
 			foreach($row as $key => $value){
-				$str_update[] = "`".$key."` = '".$value."'";			
+				$str_update[] = "`".$key."` = '".$value."'";
 			}
-			
+
 			// convert to string
 			$str_update = implode(',',$str_update);
-			
+
 			$sql = ' UPDATE  '.$table_name . ' SET ';
 			$sql .=  $str_update;
 			$sql .=  ' WHERE id = 	  '.$id.' ';
-			
+
 			global $db;
 			$rows = $db->affected_rows($sql);
 			if($rows)
 				return $rows?$id:0;
 		}
-		
-		
+
+
 		function get_all_record($table_name,$ordering = ''){
 			$field = FSInput::get ( 'field' );
 			$tablename = FSInput::get ( 'tablename' );
 			$where="";
 			// if($field=='manufactory')
 			// 	$where .="  AND tablenames like '%,fs_products_".$tablename.",%'";
-			
+
 			  $query = " SELECT *
 						  FROM ".$table_name." 
 						  WHERE 1 = 1 ".$where;
@@ -1094,12 +1094,12 @@
 						OR alias = '".$alias."') ";
 			if($id)
 				$query .= ' AND id <> '.$id.' ';
-			
+
 			global $db;
 			$result = $db->getResult($query);
 			return $result;
 		}
-		
+
 		/*
 		 * Remove img
 		 */
@@ -1107,20 +1107,20 @@
 		function remove_image($sts_ids,$path_arr = array(),$field='image',$table_name= ''){
 			if(!$sts_ids || !count($path_arr))
 				return;
-			if(!$table_name)	
+			if(!$table_name)
 				$table_name = $this -> table_name;
-			
+
 			$sql = " SELECT ".$field."
 					 FROM ".$table_name."
 					 WHERE  id IN (".$sts_ids.") ";
 			global $db;
 			$list = $db->getObjectList($sql);
-			
+
 			for($i = 0; $i < count($list) ; $i ++){
 				$image = $list[$i] -> $field;
 				if($image)
 				for($j = 0; $j < count($path_arr); $j ++ ){
-					
+
 					if(!@unlink($path_arr[$j].$image)){
 						Errors::_('Not remove image'.$path_arr[$j].$image);
 					}
@@ -1128,7 +1128,7 @@
 			}
 			return true;
 		}
-		
+
 		/*
 		 * Note: Image link is fixed link. This have url_root
 		 * Remove old width new method
@@ -1138,15 +1138,15 @@
 			if(!$sts_ids)
 				return;
 			$path_arr = $this -> arr_img_paths;
-			if(!$table_name)	
+			if(!$table_name)
 				$table_name = $this -> table_name;
-			
+
 			$sql = " SELECT ".$field."
 					 FROM ".$table_name."
 					 WHERE  id IN (".$sts_ids.") ";
 			global $db;
 			$list = $db->getObjectList($sql);
-			
+
 			for($i = 0; $i < count($list) ; $i ++){
 				$image = $list[$i] -> $field;
 				if(!empty($image)){
@@ -1172,20 +1172,20 @@
 		function remove_file($sts_ids,$path_arr = array(),$field='image',$table_name= ''){
 			if(!$sts_ids || !count($path_arr))
 				return;
-			if(!$table_name)	
+			if(!$table_name)
 				$table_name = $this -> table_name;
-			
+
 			$sql = " SELECT ".$field."
 					 FROM ".$table_name."
 					 WHERE  id IN (".$sts_ids.") ";
 			global $db;
 			$list = $db->getObjectList($sql);
-			
+
 			for($i = 0; $i < count($list) ; $i ++){
 				$image = $list[$i] -> $field;
 				if($image)
 				for($j = 0; $j < count($path_arr); $j ++ ){
-					
+
 					if(!@unlink($path_arr[$j].$image)){
 						Errors::_('Not remove image'.$path_arr[$j].$image);
 					}
@@ -1193,7 +1193,7 @@
 			}
 			return true;
 		}
-		
+
 		/*
 		 * Check exist of record in tables of language
 		 */
@@ -1208,7 +1208,7 @@
 					$query = " SELECT id
 							  FROM ".$table_name."
 							  WHERE rid = $rid ";
-					
+
 					$result = $db->getResult($query);
 					if($result)
 						return true;
@@ -1237,7 +1237,7 @@
 					WHERE country_id = $country_id ";
 			return $db->getObjectList($sql);
 		}
-		
+
 		function get_city()
 		{
 			global $db ;
@@ -1251,7 +1251,7 @@
 			$estore_id = $_SESSION['estore_id'];
 			if(!$estore_id)
 				return;
-				
+
 			global $db ;
 			$sql = " SELECT *
 					FROM fs_estores
@@ -1259,7 +1259,7 @@
 					";
 			return $db->getObject($sql);
 		}
-		
+
 		/*
 		 * get rid
 		 * 1. if rid exist: get Max rid
@@ -1292,9 +1292,9 @@
 				$result = $db->getResult($query);
 				$max_rid = $max_rid > $result ? $max_rid: $result;
 			}
-			return $max_rid + 1; 
+			return $max_rid + 1;
 		}
-		
+
 		/*
 	     * Save all record for list form
 	     */
@@ -1308,8 +1308,8 @@
 //	        var_dump($field_change);die;
 	        if(!$field_change)
 	           return false;
-          	// 	calculate filters: 
-			$arr_table_name_changed = array();	
+          	// 	calculate filters:
+			$arr_table_name_changed = array();
 
 	        $field_change_arr = explode(',',$field_change);
 	        $total_field_change = count($field_change_arr);
@@ -1335,7 +1335,7 @@
                         //die;
 //	        	          $row[$field_item] = $db -> escape_string($field_value_new);
 //	        	          $str_update[] = "`".$field_item."` = '".$field_value_new."'";
-	        	      }    
+	        	      }
 	        	}
 
 //	        	var_dump($row);die;
@@ -1361,7 +1361,7 @@
 	        				$rs = $this -> _update($row,$table_extend, '  record_id = '.$id );
 	        			}
 					}
-					
+
 		        	//synchronize
 					$array_synchronize = $this -> array_synchronize;
 					if(count($array_synchronize)){
@@ -1386,18 +1386,18 @@
 								$rs = $this -> _update($row5,$table_name, $where,0 );
 						}
 					}
-					
+
 		            if(!$rs)
 		                return false;
 		            $record_change_success ++;
 	        	}
 	        }
-	        
+
 	     	// calculate filters:
 //			if($this -> calculate_filters){
 //				$this -> caculate_filter($arr_table_name_changed);
 //			}
-	        return $record_change_success;  
+	        return $record_change_success;
 	    }
 	  /*
          * Show list category of tags
@@ -1414,10 +1414,10 @@
             $list = $tree -> indentRows2($result);
             $limit = $this->limit;
             $page  = $this->page?$this->page:1;
-            
+
             $start = $limit*($page-1);
             $end = $start + $limit;
-            
+
             $list_new = array();
             $i = 0;
             foreach ($list as $row){
@@ -1430,7 +1430,7 @@
             }
             return $list_new;
         }
-        
+
         function change_status($field,$value){
         	if(!$field)
         		return false;
@@ -1447,7 +1447,7 @@
 			}
 			return 0;
         }
-        
+
 	/*
 		 * value: == 1 :hot
 		 * value  == 0 :unhot
@@ -1456,7 +1456,7 @@
 		function home($value)
 		{
 			$ids = FSInput::get('id',array(),'array');
-			
+
 			if(count($ids))
 			{
 				global $db;
@@ -1471,7 +1471,7 @@
 			if($this -> call_update_sitemap){
 				$this -> call_update_sitemap();
 			}
-			
+
 			return 0;
 		}
         function autumn($value)
@@ -1517,7 +1517,7 @@
             return 0;
         }
 		/*
-		 * @Return: 1: tồn tại, 0: không tồn tại 
+		 * @Return: 1: tồn tại, 0: không tồn tại
 		 */
 		function check_exist($value,$id = '',$field = 'alias',$table_name = ''){
 			if(!$value)
@@ -1535,7 +1535,7 @@
 			return $result;
 		}
 		/*
-		 * Tạo ra alias mới nếu nó tồn tại 
+		 * Tạo ra alias mới nếu nó tồn tại
 		 */
 		function genarate_alias_news($value,$id = '',$table_name = ''){
 			if(!$value)
@@ -1544,14 +1544,14 @@
 				$table_name = $this -> table_name;
 			$i = 1;
 			while(true){
-				$value_news = $value.'-'.$i; 
+				$value_news = $value.'-'.$i;
 				if(!$this -> check_exist($value_news,$id)){
 					return $value_news;
 				}
 				$i ++;
 			}
 		}
-		
+
 		function upload_image($image_tag_name = 'image',$suffix = '', $max_size = 2000000,$arr_img_paths = array(),$img_folder = ''){
 			if(!$img_folder)
 			$img_folder = $this -> img_folder;
@@ -1565,20 +1565,20 @@
 	    		Errors:: setError("Not create folder ".$path);
     			return false;
 	    	}
-		
+
 			$image = $fsFile -> uploadImage($image_tag_name, $path ,$max_size, $suffix);
 
 			if(!$image)
 				return false;
 			if($this->image_watermark){
 				$file = $fsFile->add_logo($path,$image,PATH_BASE.str_replace('/',DS, $this->image_watermark['path_image_watermark']),$this->image_watermark['position']);
-            }	
-			
+            }
+
 			$img_link = $img_link.'/original/'.$image	;
-			
+
 			if(!count($arr_img_paths))
 				$arr_img_paths = $this -> arr_img_paths;
-				
+
 			if(!count($arr_img_paths))
 				return $img_link;
 
@@ -1591,7 +1591,7 @@
                         return false;
                 }
             }
-			return $img_link;	
+			return $img_link;
 		}
 		/*
 		 * Duplicate ảnh
@@ -1609,7 +1609,7 @@
 			$link_img_destination = str_replace('/'.$file_name, '/'.$file_name_new, $source_image);
 			$path_source = PATH_BASE.str_replace('/',DS,$source_image);
 			$path_destination = PATH_BASE.str_replace('/',DS,$link_img_destination);
-			
+
 			$fsFile -> copy_file($path_source,$path_destination);
 
 			$arr_img_paths = $this -> arr_img_paths;
@@ -1619,10 +1619,10 @@
 				$path_source_resize = str_replace(DS.'original'.DS, DS.$item[0].DS, $path_source);
 				$path_destination_resize = str_replace(DS.'original'.DS, DS.$item[0].DS, $path_destination);
 				$fsFile -> copy_file($path_source_resize,$path_destination_resize);
-			}	
-			return $link_img_destination;	
+			}
+			return $link_img_destination;
 		}
-		
+
 		function update_sitemap($str_categories_id,$table_name = 'fs_news_categories',$module = 'news'){
 			global $db;
 			$sql = " SELECT * FROM  fs_sitemap
@@ -1640,7 +1640,7 @@
 					continue;
 				}
 				$row = array();
-				
+
 				$row['record_id'] =  $record -> id;
 				$row['module'] =  $module;
 				$row['table_name'] =  $table_name;
@@ -1650,19 +1650,19 @@
 				$this -> _update($row, 'fs_sitemap','  record_id = '.$record -> id.' AND module = "'.$module.'" AND table_name = "'.$table_name.'"');
 				$array_record_exit[] = $record -> id;
 			}
-			
+
 			$arr_categories_id = explode(',',$str_categories_id);
 			foreach($arr_categories_id as $item){
-				
+
 				if(in_array($item, $array_record_exit))
 					continue;
 				$record = $this -> get_record_by_id($item ,$table_name);
 				if(!$record){
-					$this -> _remove('record_id = '.$item,'fs_sitemap' );	
-					continue;			
+					$this -> _remove('record_id = '.$item,'fs_sitemap' );
+					continue;
 				}
 				$row = array();
-				
+
 				$row['record_id'] =  $record -> id;
 				$row['module'] =  $module;
 				$row['table_name'] =  $table_name;
@@ -1692,10 +1692,10 @@
 			$list = $tree -> indentRows2($result);
 			$limit = $this->limit;
 			$page  = $this->page?$this->page:1;
-			
+
 			$start = $limit*($page-1);
 			$end = $start + $limit;
-			
+
 			$list_new = array();
 			$i = 0;
 			foreach ($list as $row){
@@ -1708,7 +1708,7 @@
 			}
 			return $list_new;
 		}
-		
+
 	/*
 		 * select in category of home
 		 */
@@ -1724,7 +1724,7 @@
 			$list = $tree -> indentRows2($result);
 			return $list;
 		}
-		
+
 		/************************************************************************************************/
 									/*  CALCULATE FILTER *****/
 		/************************************************************************************************/
@@ -1752,18 +1752,18 @@
 			if(count($arr_table_name)){
 				foreach($arr_table_name as $table_name){
 					// caculate for table fs_TYPE_extend
-					$this -> _remove(' tablename = "'.$table_name.'"','fs_'.$this -> type.'_filters_values');	
-				}		
+					$this -> _remove(' tablename = "'.$table_name.'"','fs_'.$this -> type.'_filters_values');
+				}
 			}
 			if(count($arr_categories_id)){
 				foreach($arr_categories_id as $category_id){
 					// caculate for table fs_TYPE_extend
-					$this -> _remove(' category_id = "'.$category_id.'"','fs_'.$this -> type.'_filters_values');	
-				}		
+					$this -> _remove(' category_id = "'.$category_id.'"','fs_'.$this -> type.'_filters_values');
+				}
 			}
 			return true;
 		}
-		
+
 		function calculate_filter_common(){
 			// get data from fs_TYPE
 			$data = $this -> get_records('published = 1','fs_'.$this -> type);
@@ -1771,15 +1771,15 @@
 			$filters = $this -> get_records('is_common = 1','fs_'.$this -> type.'_filters');
 			// get categories
 			$categories = $this -> get_records('','fs_'.$this -> type.'_categories');
-			
+
 			if(!count($data) || !count($filters))
 				return;
-			$arr_filter = array(); 	
+			$arr_filter = array();
 
 			$arr_filter_id_current = array();
 			$arr_filter_fieldname_current = array();
 			$array_exit = array();
-			
+
 			foreach( $data as $item){
 				// duyệt ko có category
 				$rs = $this -> genate_array_filter($arr_filter,$filters,$arr_filter_id_current,$arr_filter_fieldname_current,$array_exit ,$item,0);
@@ -1796,24 +1796,24 @@
 			$this -> save_filter($arr_filter,$filters,'fs_'.$this -> type,$categories);
 			return true;
 		}
-		
+
 		/*
 		 * Đêm bộ lọc trong trường bảng mở rộng
 		 * Nếu $categories_id rỗng ta phải xét hết categories
 		 */
 		function calculate_filter_extend($table_name,$category_id =  null){
-			// get filter 
+			// get filter
 			$filters = $this -> get_records(' tablename = "'.$table_name.'" OR tablename ="fs_'.$this -> type.'"','fs_'.$this -> type.'_filters','*',null,null,'id');
-			
+
 			// get categories
 			if($category_id)
 				$categories = $this -> get_records('id = '.$category_id,'fs_'.$this -> type.'_categories','*',null,null,'id');
 			else
 				$categories = $this -> get_records(' tablename = "'.$table_name.'"','fs_'.$this -> type.'_categories','*',null,null,'id');
-			
+
 			if(!count($filters))
 				return;
-			$arr_filter = array(); 	
+			$arr_filter = array();
 
 			$arr_filter_id_current = array();
 			$arr_filter_fieldname_current = array();
@@ -1822,10 +1822,10 @@
 			$limit_for_data = 50;// số sản phẩm mỗi lần tính toán
 			$total_data =  $this -> get_count('published = 1',$table_name);
 			$repeat = ceil($total_data/$limit_for_data);
-		
+
 			for($k = 0; $k < $repeat; $k ++){
 				$start = $k * $limit;
-				
+
 				$data = $this -> get_records('published = 1',$table_name,'*','',''.$start.','.$limit_for_data);
 				foreach( $data as $item){
 					// duyệt ko có category
@@ -1846,9 +1846,9 @@
 		}
 		/*
 		 * sinh mang filter khong co category
-		 * $arr_filter_id_current : (Mảng id của các filter đang duyệt tới) có dạng:  (2,3,4)  
-		 * $arr_filter_fieldname_current : mảng field_name của các filter đang duyệt tới. Để tránh duyệt cùng 1 fieldname .có dạng:  ('color','body','...) 
-		 * $array_exit: có dạng array('0,1,2' => '2,0,1') dùng để check các filter đã duyệt. VD [1][2][3] = [2][1][3] sẽ bị trùng nhau 
+		 * $arr_filter_id_current : (Mảng id của các filter đang duyệt tới) có dạng:  (2,3,4)
+		 * $arr_filter_fieldname_current : mảng field_name của các filter đang duyệt tới. Để tránh duyệt cùng 1 fieldname .có dạng:  ('color','body','...)
+		 * $array_exit: có dạng array('0,1,2' => '2,0,1') dùng để check các filter đã duyệt. VD [1][2][3] = [2][1][3] sẽ bị trùng nhau
 		 * Thay đổi sau mỗi lần đệ quy: $arr_filter,$array_exit
 		 */
 		function genate_array_filter($arr_filter,$filters,$arr_filter_id_current,$arr_filter_fieldname_current,$array_exit ,$record,$category_id = 0){
@@ -1860,20 +1860,20 @@
 			if($this -> check_exits($array_exit,$arr_filter_id_current,$category_id)){
 				return array(0=> $arr_filter, 1 => $array_exit);
 			}
-			
+
 			$str_ids_parent = count($arr_filter_id_current)? implode(',', $arr_filter_id_current):'';
 			// duyệt con
 			foreach($filters as $filter){
 				// khong duyệt cùng field_name
 				if(in_array($filter -> field_name,$arr_filter_fieldname_current))
 					continue;
-				$str_ids_current = $str_ids_parent?$str_ids_parent.',':'';	
+				$str_ids_current = $str_ids_parent?$str_ids_parent.',':'';
 				$str_ids_current .= $filter -> id;
 				if(!isset($arr_filter[$category_id][$str_ids_current]))
 					$arr_filter[$category_id][$str_ids_current] = 0;
 				if($this -> calculate_record_compatible_filter($record,$filter -> filter_value,$filter -> calculator,$filter -> field_name)){
 					$arr_filter[$category_id][$str_ids_current] ++;
-					
+
 					// gọi đệ quy để duyệt con:
 					$arr_filter_id_current_child = $arr_filter_id_current;
 					$arr_filter_id_current_child[] = $filter -> id;
@@ -1889,11 +1889,11 @@
 			}
 			return array(0=> $arr_filter, 1 => $array_exit);
 		}
-		
+
 		function calculate_filter_common_for_category($data){
-			
+
 		}
-		
+
 		/*
 		 * Kiểm tra trùng lặp khi duyệt trong trường hợp đảo duyệt. VD [1][2][3] = [2][1][3] sẽ bị trùng nhau
 		 * $array_exit: có dạng array('0,1,2' => '2,0,1') dùng để check các filter đã duyệt. VD [1][2][3] = [2][1][3] sẽ bị trùng nhau
@@ -1909,20 +1909,20 @@
 			asort($arr_filter_id_current_sort);
 
 			// chuyển qua chuỗi
-			$str_filter_fieldname_current_sort = implode(',', $arr_filter_id_current_sort);	
+			$str_filter_fieldname_current_sort = implode(',', $arr_filter_id_current_sort);
 			$str_filter_fieldname_current = implode(',', $arr_filter_id_current);
-			
+
 			// nếu chưa tồn tại trong mảng array_exit
 			if(!isset($array_exit[$category_id][$str_filter_fieldname_current_sort]))
 				return false;
-			
-			// kiểm tra xem có giống mảng đang gọi ko?	
+
+			// kiểm tra xem có giống mảng đang gọi ko?
 			if($array_exit[$category_id][$str_filter_fieldname_current_sort] != $str_filter_fieldname_current)
 				return true;
-			
+
 			return false;
 		}
-		
+
 		/*
 		 * Tính toán xem record này có thỏa mãn điều kiện filter đưa ra
 		 * record: 1 record
@@ -1931,7 +1931,7 @@
 		 * return: yes or no
 		 */
 		function calculate_record_compatible_filter($record,$filter_value,$math,$field){
-				
+
 			$record_value = @$record -> $field;
 			$filter_value1 = '';
 			$filter_value2 = '';
@@ -1941,8 +1941,8 @@
 				$filter_value1 = @$arr_value[0]?$arr_value[0]:"";
 				$filter_value2 = @$arr_value[1]?$arr_value[1]:"";
 			}
-			
-			switch ($math){	
+
+			switch ($math){
 				case '1':
 					return false;
 				case '2': // LIKE
@@ -1952,7 +1952,7 @@
 						}
 					}
 					return false;
-				case '3':	// Null	
+				case '3':	// Null
 					if(!$record_value || trim($record_value) == "")
 						return true;
 					return false;
@@ -2012,7 +2012,7 @@
 					return false;
 			}
 		}
-		
+
 		/*
 		 * Sinh ra mảng chứa các filter_id đã duyệt
 		 */
@@ -2028,7 +2028,7 @@
 			$array_exit[$category_id][$str_filter_parrent_current_sort] = implode(',', $filter_parrent_current);
 			return $array_exit;
 		}
-		
+
 		/*
 		 * Kiểm tra xem item này có nằm trong category ko
 		 */
@@ -2039,7 +2039,7 @@
 				return true;
 			return false;
 		}
-		
+
 		/*
 		 * table_name == ''? common:extend
 		 * $arr_filter: mảng kết quả filter sau khi tính toán
@@ -2048,16 +2048,16 @@
 		 */
 		function save_filter($arr_filter,$filters,$table_name = '',$categories,$calculator_empty = 0){
 			if(!count($arr_filter))
-			
+
 				return;
-			
+
 			// remove old common data
 			$this -> _remove('is_common = 1','fs_'.$this -> type.'_filters_values');
 			// remove old extend data
-			if($table_name){ 
+			if($table_name){
 				$this -> _remove('tablename = "'.$table_name.'"','fs_'.$this -> type.'_filters_values');
 			}
-			
+
 			foreach($arr_filter as $category_id => $filters_in_cat){
 				if(!count($filters_in_cat))
 					continue;
@@ -2066,13 +2066,13 @@
 					// nếu không đếm trường hợp count == 0
 					if(!$calculator_empty && !$count)
 						continue;
-					$row = array();	
+					$row = array();
 					$arr_ids = explode(',',$ids);
 					$url_id = '';
 					$url_alias = '';
 					$total_ids = count($arr_ids);
 					$j = 0;
-					
+
 //					$common = 0;
 					for($i = $total_ids - 1; $i >= 0 ; $i -- ){
 						if($i == ($total_ids - 1) ){
@@ -2088,9 +2088,9 @@
 //								$common = 1 ;
 							$j ++;
 						}
-					}	
+					}
 					$filter_current = $filters[$filter_current_id];
-					
+
 					// row
 					$row['category_id'] = $category_id;
 					$row['category_alias'] = $category_alias;
@@ -2111,11 +2111,11 @@
 					$row['published']  = $filter_current -> published;
 					$row['is_common']  = $filter_current -> is_common;
 					$row['is_condition']  = $filter_current -> is_condition;
-					$this -> _add($row, 'fs_'.$this->type.'_filters_values');	
+					$this -> _add($row, 'fs_'.$this->type.'_filters_values');
 				}
 			}
 		}
-	
+
 		/*
 		 * Đồng bộ lại trường liên quan, nếu A chọn B là relate thì B sẽ coi A là relate
 		 */
@@ -2132,27 +2132,27 @@
 				$this -> _update($row, $table_name,' id = '.$item -> id);
 			}
 		}
-		
+
 		function _update_column($table_name,$column_name = '',$value ='NULL'){
 			$sql = 'UPDATE '.$table_name.' SET ' .$column_name.' = '.$value ;
 			global $db;
 			$rows = $db->affected_rows($sql);
 			return $rows;
 		}
-	
+
 		/*
 		 * save into extension table
 		 * (insert or update)
 		 */
 		function save_extension_exel($tablename, $record_id, $row_exel) {
-			
+
 			$data = $this->get_record ( 'id = ' . $record_id, $this->table_name );
 			global $db;
 			// field default: cai nay can xem lai vi hien dang ko su dung. Can phai su dung de luoc bot cac  truong thua
 			$field_default = $this->get_records ( ' type = "' . $this->type . '"  ', 'fs_tables' );
 			if (! $record_id)
 				return false;
-			
+
 			if (! $db->checkExistTable ( $tablename ))
 				return false;
 			// data same fs_TYPE
@@ -2167,7 +2167,7 @@
 			}
 			if($row_exel)
 				$row2 = array_merge($row, $row_exel);
-			else 
+			else
 				$row2 = $row;
 			$check_id = $this ->check_exist($record_id,$id = '','record_id',$tablename);
 			if ($check_id) {
@@ -2181,26 +2181,26 @@
 			global $db;
 			if ($tablename == 'fs_products' || $tablename == '')
 				return;
-			
+
 			$exist_table = $db->checkExistTable ( $tablename );
 			if (! $exist_table) {
 				Errors::setError ( FSText::_ ( 'Table' ) . ' ' . $tablename . FSText::_ ( ' is not exist' ) );
 				return;
 			}
-		
+
 			$cid = FSInput::get ( 'cid' );
 			$query = " SELECT * 
 							FROM fs_products_tables
 							WHERE table_name =  '$tablename' 
 							AND field_name <> 'id' ";
 			$result = $db->getObjectList ($query);
-			
+
 			return $result;
 		}
 	function buff_loop( $field_group,$table_name = ''){
 			if(!$field_group)
         		return false;
-        	$str_id = '';	
+        	$str_id = '';
 			$query ="	SELECT id , count(".$field_group.") as c , MAX(id) as mid
 				FROM ".$table_name."
 				GROUP BY ".$field_group."
@@ -2208,7 +2208,7 @@
 			";
 			global $db;
 			$arr_group_duplicate = $db->getObjectList($query);
-			
+
 			if(count($arr_group_duplicate)){
 				$i = 0;
 				foreach($arr_group_duplicate as $item)
@@ -2216,10 +2216,10 @@
 					if ($i)
 						$str_id .= ',';
 					$str_id .= $item->mid;
-					$i++;	
-					
+					$i++;
+
 				}
-			
+
 				$query1 = "	SELECT id , count(".$field_group.") as c 
 					FROM ".$table_name."
 					GROUP BY ".$field_group."
@@ -2227,7 +2227,7 @@
 				";
 				global $db;
 				$arr_no_duplicate = $db->getObjectList($query1);
-				$j = 0;		
+				$j = 0;
 				if(count($arr_no_duplicate)){
 					$str_id .= ',';
 					foreach($arr_no_duplicate as $item)
@@ -2235,50 +2235,50 @@
 						if ($j)
 							$str_id .= ',';
 						$str_id .= $item->id;
-						$j++;	
-						
+						$j++;
+
 					}
 				}
 			}
 			if(!$str_id)
 				return;
-			
-		
+
+
 			// remove in multil
 			$sql = " DELETE FROM ".$table_name."
 						WHERE id NOT IN ($str_id)";
 
 			global $db;
 			$rows = $db->affected_rows ($sql);
-			
+
 			return $rows;
-		
+
 		}
 			 /**
          * Upload và resize ảnh
-         * 
+         *
          * @return Bool
-         */ 
+         */
 		function upload_other_images(){
 			$module = FSInput::get('module');
 			global $db;
 			$cyear = date ( 'Y' );
 			$cmonth = date ( 'm' );
 			$cday = date ( 'd' );
-		
+
 			$path = PATH_BASE.'images'.DS.$module .DS.$cyear.DS.$cmonth.DS.$cday.DS.'original'.DS;
             require_once(PATH_BASE.'libraries'.DS.'upload.php');
             $upload = new  Upload();
             $upload->create_folder ( $path );
-   
+
             $file_name = $upload -> uploadImage('file', $path, 10000000, '_' . time () );
 
              // xoay ảnh trên IOS và save ghi đè lên ảnh cũ.
             //require_once($_SERVER['DOCUMENT_ROOT'].'/libraries/lib/WideImage.php'); // Gọi thư viện WideImage.php
-//            $uploadedFileName = $path.$file_name;  // lấy ảnh từ  đã upload lên 
+//            $uploadedFileName = $path.$file_name;  // lấy ảnh từ  đã upload lên
 //            $load_img = WideImage::load($uploadedFileName);
-//            $exif = exif_read_data($uploadedFileName); // 
-//            $orientation = @$exif['Orientation'];                        
+//            $exif = exif_read_data($uploadedFileName); //
+//            $orientation = @$exif['Orientation'];
 //            if(!empty($orientation)) {
 //                switch($orientation) {
 //                    case 8:
@@ -2287,7 +2287,7 @@
 //                        break;
 //                    case 3:
 //                        $image_p = imagerotate($uploadedFileName,180,0);
-//                        
+//
 //                        //echo 'It is 3';
 //                        break;
 //                    case 6:
@@ -2295,11 +2295,11 @@
 //                        //$image_p = imagerotate($uploadedFileName,-90,0);
 //                        //echo 'It is 6';
 //                        break;
-//            
+//
 //                }
-//                //imagejpeg ( $image_p , $path.'test.jpg' ,  100 );              
-//            } 
-            // END save ảnh xoay trên IOS   
+//                //imagejpeg ( $image_p , $path.'test.jpg' ,  100 );
+//            }
+            // END save ảnh xoay trên IOS
 
 	         if(is_string($file_name) and $file_name!='' and !empty($this->arr_img_paths_other)){
 	   //      	foreach ( $this->arr_img_paths_other as $item ) {
@@ -2314,9 +2314,9 @@
 					$fsFile -> create_folder($path_resize);
 					$method_resize = $item[3]?$item[3]:'resized_not_crop';
 					if(!$fsFile ->$method_resize($path.$file_name, $path_resize.$file_name,$item[1], $item[2]))
-						return false;	
-					
-				}	
+						return false;
+
+				}
 	        }
             $data = base64_decode(FSInput::get('data'));
             $data = explode('|', $data);
@@ -2327,14 +2327,14 @@
                 $row['record_id'] = $data[1];
 			$row['image'] = 'images/'.$module .'/'.$cyear.'/'.$cmonth.'/'.$cday.'/'.'original'.'/'.$file_name;
 			$row['title'] = $_FILES['file']['name'];
-            
+
             $fs_table = new FSTable_ad();
             $tablename = $fs_table->_('fs_'.$module .'_images');
-			
+
             $rs = $this -> _add($row, $tablename);
 			echo  $rs;
 			return $rs ;
-		}  
+		}
 		// $fsFile = FSFactory::getClass('FsFiles');
 		// 	// upload
 		// 	$path = $img_folder.'original'.DS;
@@ -2342,20 +2342,20 @@
 	 //    		Errors:: setError("Not create folder ".$path);
   //   			return false;
 	 //    	}
-		
+
 		// 	$image = $fsFile -> uploadImage($image_tag_name, $path ,$max_size, $suffix);
 		// 	if(!$image)
 		// 		return false;
 		// 	if($this->image_watermark){
 		// 		$fsFile->add_logo($path,$image,PATH_BASE.str_replace('/',DS, $this->image_watermark['path_image_watermark']),$this->image_watermark['position']);
-		// 	}	
+		// 	}
 		// 	$img_link = $img_link.'/original/'.$image	;
 		// 	if(!count($arr_img_paths))
 		// 		$arr_img_paths = $this -> arr_img_paths;
-				
+
 		// 	if(!count($arr_img_paths))
 		// 		return $img_link;
-			
+
 		function delete_other_image($record_id = 0){
 			$reocord_id = FSInput::get('reocord_id',0,'int');
             $file_name = FSInput::get('name');
@@ -2372,11 +2372,11 @@
 	        }
 
             if($reocord_id){
-               $where .= ' AND record_id = ' . $reocord_id ;  
+               $where .= ' AND record_id = ' . $reocord_id ;
             }
             $fs_table = new FSTable_ad();
             $tablename = $fs_table->_('fs_'.$module .'_images');
-            
+
             $query = '  SELECT *
                         FROM '. $tablename .'
                         WHERE  1 = 1 ' . $where;
@@ -2391,14 +2391,14 @@
                  	foreach ( $this->arr_img_paths_other as $image){
     					@unlink(str_replace ( '/original/', '/'. $image[0] .'/', $path));
     				}
-            } 
+            }
         }
-        
+
         function sort_other_images(){
         	$module = FSInput::get('module');
             $fs_table = new FSTable_ad();
             $tablename = $fs_table->_('fs_'.$module .'_images');
-            
+
             global $db;
             if(isset($_POST["sort"])){
             	if(is_array($_POST["sort"])){
@@ -2410,7 +2410,7 @@
         }
 	/**
 	 * Sửa thuộc tính của ảnh
-	 * 
+	 *
 	 * @return Bool
 	 */
 	function change_attr_image() {
@@ -2440,10 +2440,10 @@
 		$rs = $this->_update ( $row, 'fs_' . $this->type . '_images', ' id = ' . $id . $where );
 		return $rs;
 	}
-    
+
     /**
 	 * Sửa tiêu đề ảnh của ảnh
-	 * 
+	 *
 	 * @return Bool
 	 */
 	function change_title_attr_image() {
@@ -2464,14 +2464,14 @@
 			return;
 
 		$row ['title'] = $value;
-        
+
         $fs_table = new FSTable_ad();
         $tablename = $fs_table->_('fs_'.$this->type .'_images');
-        
+
 		$rs = $this->_update ( $row, $tablename , ' id = ' . $id . $where );
 		return $rs;
 	}
-       
+
 		/******************/
 		function get_config_by_key($key){
 			if(!$key)
@@ -2484,7 +2484,7 @@
 			$result = $db->getResult();
 			return $result;
 		}
-		
+
 		/*
 		 * Lay danh sach tinh / thanh pho
 		 */
@@ -2518,7 +2518,7 @@
 			$result = $db->getObjectList();
 			return $result;
 		}
-		
+
 		function get_news_categories_tree_by_permission()
 		{
 			$permission_cities = $this -> get_result('id='.$_SESSION['ad_userid'],'fs_users','news_categories');
@@ -2595,7 +2595,7 @@
 			$list = $tree -> indentRows2($result);
 			return $list;
 		}
-        
+
         function get_categories_tree_by_permission($table_category='')
 		{
 		    //$table_name = !empty($table_name)? $table_name:$this->table_name;
@@ -2617,18 +2617,18 @@
 			$list = $tree -> indentRows2($result);
 			return $list;
 		}
-        
+
 		function delete_image(){
             global $db;
             $id = FSInput::get('id', 0);
             $field = FSInput::get('field');
             $data = $this->get_record_by_id($id,$this->table_name);
             $row =array();
-            $row[$field] =''; 
+            $row[$field] ='';
             $rs =$this -> _update($row,$this->table_name,'id = '.$id);
             //print_r($this->arr_img_paths);
             if($rs){
-	            $path = PATH_BASE.$data->$field;    
+	            $path = PATH_BASE.$data->$field;
 	            @unlink($path);
                 @unlink(str_replace('.png','.webp',$path));
                 @unlink(str_replace('.jpg','.webp',$path));
@@ -2638,26 +2638,26 @@
                     @unlink(str_replace('/original/', '/' . $image[0] . '/', str_replace('.jpg','.webp',$path)));
     			}
             }
-            
+
         }
-        
+
         function delete_file(){
             global $db;
             $id = FSInput::get('id', 0);
             $field = FSInput::get('field');
             $data = $this->get_record_by_id($id,$this->table_name);
             $row = array();
-            $row[$field] =''; 
+            $row[$field] ='';
             $rs =$this -> _update($row,$this->table_name,'id = '.$id);
             //print_r($this->arr_img_paths);
             if($rs){
-	            $path = PATH_BASE.$data->$field;    
+	            $path = PATH_BASE.$data->$field;
 	            @unlink($path);
             }
-            
+
         }
-        
-        function get_all_config(){	
+
+        function get_all_config(){
 			global $db;
 			$fstable  = FSFactory:: getClass('fstable');
 			$sql = " SELECT * FROM ".$fstable->_('fs_config')."
@@ -2671,17 +2671,17 @@
 			}
 			return $array_config;
 		}
-        
+
         function send_email1($title, $content, $nTo, $mTo,$diachicc='tuananh@finalstyle.com'){
             //global $email_info;
-            
+
             $global_class = FSFactory::getClass('FsGlobal');
-            
+
             $admin_name = $global_class->getConfig('admin_name');
 			$admin_email = $global_class->getConfig('admin_email');
-            
+
             $nFrom = $admin_name;
-            
+
             $random = rand(1,40);
             switch($random){
                 case 1:
@@ -2694,206 +2694,16 @@
                     $mFrom = 'info1@ketnoigiaoduc.vn';
                     $mPass = 'WCGiL7u8puS{';
                     break;
-                case 3:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info2@ketnoigiaoduc.vn';
-                    $mPass = 'hF8lD4%s4Q_Q';
-                    break;
-                case 4:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info3@ketnoigiaoduc.vn';
-                    $mPass = '&m]4u-Vv~#h;';
-                    break;
-                case 5:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info4@ketnoigiaoduc.vn';
-                    $mPass = 'i00?[+kM40}4';
-                    break;
-                case 6:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info5@ketnoigiaoduc.vn';
-                    $mPass = ']D^TrXwVmq^$';
-                    break;
-                case 7:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info6@ketnoigiaoduc.vn';
-                    $mPass = '=P(E[$qza}TK';
-                    break;
-                case 8:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info7@ketnoigiaoduc.vn';
-                    $mPass = 'Rz0[[-FRSy8o';
-                    break;
-                case 9:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info8@ketnoigiaoduc.vn';
-                    $mPass = 'iE,SMN%60[X2';
-                    break;
-                case 10:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info9@ketnoigiaoduc.vn';
-                    $mPass = 'm[0gfl9iT?oF';
-                    break;
-                case 11:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info10@ketnoigiaoduc.vn';
-                    $mPass = '0L!_sgJmfI^h';
-                    break;
-                case 12:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info11@ketnoigiaoduc.vn';
-                    $mPass = 'WI.2!spTDU?D';
-                    break;
-                case 13:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info12@ketnoigiaoduc.vn';
-                    $mPass = 'Z1Fh{FdRWH!(';
-                    break;
-                case 14:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info13@ketnoigiaoduc.vn';
-                    $mPass = '{xt]O$WPSBHl';
-                    break;
-                case 15:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info14@ketnoigiaoduc.vn';
-                    $mPass = 'z?IZGe*&}S0}';
-                    break;
-                case 16:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'info15@ketnoigiaoduc.vn';
-                    $mPass = 'rokmhFTxI;en';
-                    break;
-                case 17:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin@ketnoigiaoduc.vn';
-                    $mPass = '^XBC8xRi3Woc';
-                    break;
-                case 18:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin1@ketnoigiaoduc.vn';
-                    $mPass = 'HxN*03D.@Q5m';
-                    break;   
-                case 19:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin2@ketnoigiaoduc.vn';
-                    $mPass = 'vtuI1U4MaOT.';
-                    break;
-                case 20:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin3@ketnoigiaoduc.vn';
-                    $mPass = 'M)mp56G%;I3L';
-                    break;
-                case 21:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin4@ketnoigiaoduc.vn';
-                    $mPass = 'Rqq(O_?6oyiF';
-                    break; 
-                case 22:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin5@ketnoigiaoduc.vn';
-                    $mPass = 'W0,JH[h.{MW{';
-                    break;
-                case 23:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin6@ketnoigiaoduc.vn';
-                    $mPass = 'i!He}Skz7kvE';
-                    break;
-                case 24:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin7@ketnoigiaoduc.vn';
-                    $mPass = ',QB&bhtr*-A,';
-                    break;
-                case 25:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin8@ketnoigiaoduc.vn';
-                    $mPass = '}~-vU8(8o9fr';
-                    break;
-                case 26:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin9@ketnoigiaoduc.vn';
-                    $mPass = 'T@(vC@_9[K#m';
-                    break;
-                case 27:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin10@ketnoigiaoduc.vn';
-                    $mPass = '1Bd3@T-Zyzd&';
-                    break;
-                case 28:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin11@ketnoigiaoduc.vn';
-                    $mPass = 'cI-.hCJH4N3A';
-                    break;
-                case 29:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin12@ketnoigiaoduc.vn';
-                    $mPass = '8#-AA~4^JEd_';
-                    break;
-                case 30:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin13@ketnoigiaoduc.vn';
-                    $mPass = 'uWU73y[iS8r{';
-                    break;
-                case 31:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin14@ketnoigiaoduc.vn';
-                    $mPass = 'J7n3,3(ii_Bg';
-                    break; 
-                case 32:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin15@ketnoigiaoduc.vn';
-                    $mPass = ']6]u$0WL5T(U';
-                    break;
-                case 33:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin16@ketnoigiaoduc.vn';
-                    $mPass = 'daLomwC9RzFl';
-                    break;
-                case 34:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin17@ketnoigiaoduc.vn';
-                    $mPass = '6_e#Mz0TK5Z%';
-                    break;
-                case 35:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin18@ketnoigiaoduc.vn';
-                    $mPass = 'BTA0SL+s1o]&';
-                    break;
-                case 36:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin19@ketnoigiaoduc.vn';
-                    $mPass = 'iU@-H,wt-c*U';
-                    break;
-                case 37:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin20@ketnoigiaoduc.vn';
-                    $mPass = 'w$Ta5RB+tuMm';
-                    break;
-                case 38:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin21@ketnoigiaoduc.vn';
-                    $mPass = 'Igkfh)()o,$%';
-                    break;
-                case 39:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin22@ketnoigiaoduc.vn';
-                    $mPass = '8hluk)-@kg~d';
-                    break;
-                case 40:
-                    $server = 'pro17.emailserver.vn';
-                    $mFrom = 'admin23@ketnoigiaoduc.vn';
-                    $mPass = 'eaFu9oc26Lb^';
-                    break;
-                               
+
             }
             //$mFrom = 'info@ketnoigiaoduc.vn'; //$email_info['mFrom'];//dia chi email cua ban
             //$mPass = 'lzsaw{JZnHDE'; // $email_info['mPass'];//mat khau email cua ban
-            
+
             FSFactory::include_class('class.smtp','mailserver');
             $mail = FSFactory::getClass('PHPMailer','mailserver');
-            
+
             $body = $content;
-            
+
             $mail->IsSMTP();
             //Tắt mở kiểm tra lỗi trả về, chấp nhận các giá trị 0 1 2
             // 0 = off không thông báo bất kì gì, tốt nhất nên dùng khi đã hoàn thành.
@@ -2902,20 +2712,20 @@
             $mail->SMTPDebug= 0; // enables SMTP debug information (for testing)
             $mail->Debugoutput = "html"; // Lỗi trả về hiển thị với cấu trúc HTML
             $mail->CharSet= "utf-8";
-            
+
             $mail->SMTPAuth= true; // enable SMTP authentication
             $mail->SMTPSecure = "ssl"; // sets the prefix to the servier
             $mail->Host= $server; //$email_info['Host'];
             $mail->Port= '465'; //$email_info['Port'];
-            
+
             $mail->Username= $mFrom;// GMAIL username
             $mail->Password= $mPass;// GMAIL password
-            
+
             $mail->SetFrom($mFrom, $nFrom);
             //chuyen chuoi thanh mang
             $ccmail = explode(',', $diachicc);
             $ccmail = array_filter($ccmail);
-            
+
             if(!empty($ccmail)){
                 foreach ($ccmail as $k => $v) {
                     $mail->addBCC($v);
@@ -2925,12 +2735,12 @@
             $mail->Subject = $title;
             $mail->MsgHTML($body);
             //$mail->MsgHTML(file_get_contents('email-template.html'), dirname(__FILE__));
-            
+
             $address = $mTo;
-            
+
             $mail->AddAddress($address, $nTo);
             $mail->AddReplyTo($admin_email, $admin_name);
-            
+
             if(!$mail->Send()) {
                 echo $random;
                 echo "Có lỗi khi gửi mail: " . $mail->ErrorInfo;
@@ -2950,6 +2760,31 @@
             if($row)
                 $auto_increment = $row->AUTO_INCREMENT;
             return $auto_increment;
+        }
+
+        function save_key_content($id_content){
+            $keyword = FSInput::get('seo_main_key');
+            $module = $this -> module;
+            $count = $this->check_key_exist($id_content,$module);
+            if ($count){
+                $sql = "UPDATE fs_keywords_seo SET keywords = '".$keyword."', module = '".$module."', id_content = '".$id_content."' WHERE id_content = ".$id_content." AND module = '".$module."'";
+                global $db;
+                $id = $db->insert($sql);
+            }else{
+                $sql = "INSERT INTO fs_keywords_seo (keywords,module,id_content) VALUE ('$keyword','$module',$id_content)";
+                global $db;
+                $id = $db->insert($sql);
+            }
+
+            return $id;
+        }
+
+        function check_key_exist($id,$module){
+            $sql = "SELECT count(*) FROM fs_keywords_seo WHERE id_content ='".$id."' AND module = '".$module."'";
+            global $db;
+            $db->query ( $sql );
+            $total = $db->getResult ();
+            return $total;
         }
 	}
 ?>
