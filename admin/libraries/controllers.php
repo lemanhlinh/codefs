@@ -10,6 +10,7 @@ class Controllers
 	var $prefix ;
 	var $page ;
 	var $limit ;
+    var $seo_content;
 	var $params_form = array() ; // add hiden input tag into form
     var $array_file = array() ;  // list field permission
 	function __construct()
@@ -18,6 +19,7 @@ class Controllers
 		$view = FSInput::get('view',$module);
 		$this -> module = $module;
 		$this -> view = $view;
+        $this -> seo_content = 0;
 
 		$prefix = $this -> module .'_'.$this -> view .'_';
 		$this -> prefix = $prefix;
@@ -29,7 +31,7 @@ class Controllers
 		$model_name = ucfirst($this -> module).'Models'.ucfirst($this -> view);
 		$this -> model = new $model_name();
 	}
-    
+
     function find_file($module,$view,$str_list_field = ''){
         if(!$module || !$view || !$str_list_field){
             return false;
@@ -37,10 +39,10 @@ class Controllers
         $array_file = array();
         $html = '';
         $model = $this -> model;
-        
+
         $this->array_file = $array_file;
     }
-    
+
 	function display()
 	{
 		$sort_field  = FSInput::get('sort_field');
@@ -72,7 +74,7 @@ class Controllers
 			}
 		}
 		// multi filter
-		if(	isset($_REQUEST['filter_count'])){ 
+		if(	isset($_REQUEST['filter_count'])){
 			$_SESSION[$this -> prefix.'filter_count']  =  clean($_REQUEST['filter_count']) ;
 			$count = $_SESSION[$this -> prefix.'filter_count'] ;
 			for($i = 0; $i < $count; $i ++){
@@ -109,7 +111,9 @@ class Controllers
 		$id = $ids[0];
 		$model = $this -> model;
 		$data = $model->get_record_by_id($id);
-        
+        if ($this->seo_content){
+            $key_word_seo = $model->load_key_words($id);
+        }
 		include 'modules/'.$this->module.'/views/'.$this->view.'/detail.php';
 	}
 
@@ -213,6 +217,11 @@ class Controllers
 	{
 		$model = $this -> model;
 		$id = $model->save();
+
+        if ($this->seo_content){
+            $id_key = $model->save_key_content($id);
+        }
+
 		$link = 'index.php?module='.$this -> module.'&view='.$this -> view;
 		if($this -> page)
 			$link .= '&page='.$this -> page;
@@ -249,6 +258,11 @@ class Controllers
 		// check password and repass
 		// call Models to save
 		$id = $model->save();
+
+        if ($this->seo_content){
+            $id_key = $model->save_key_content($id);
+        }
+
 		$link = 'index.php?module='.$this -> module.'&view='.$this -> view;
 		if($this -> page)
 			$link .= '&page='.$this -> page;
@@ -666,7 +680,7 @@ class Controllers
                 }
             }
             $panel_header = '<div class="panel-heading">'.$icon.' '.$panel_header. $note.'</div>';
-            
+
         }
 
         if($on_col == 1 && $begin_form){
@@ -678,6 +692,9 @@ class Controllers
             $html .= '<div class="row">';
         }else{
             $html = '';
+        }
+        if ($this->seo_content){
+            $col = 'col-md-8';
         }
         $html .= '<div class="'.$col.' col-xs-12">';
         $html .= '<div class="panel '.$class.'">';
@@ -760,6 +777,320 @@ class Controllers
         if($panel_header){
             $icon = '<i class="fa '.$icon.'"></i>';
             $panel_header = '<div class="panel-heading">'.$icon.' '.$panel_header.'</div>';
+        }
+        if ($this->seo_content){
+            $key_word_seo = $this->model->load_key_words(@$data->id);
+            $seo = 0;
+            $col = 'col-sm-3';
+            echo  '<div class="'.$col.' col-xs-12">';
+            echo  '<div class="panel '.$class.'">';
+            echo      $panel_header;
+            echo  '   <div class="panel-body">';
+            ?>
+            <div id="app">
+                <div class="form-group">
+                    <label class="col-xs-12 control-label">Từ khóa SEO</label>
+                    <div class="col-xs-12">
+                        <input type="text" class="form-control" name="seo_main_key" id="seo_main_key" size="60" maxlength="100" v-model="keyword" @input="countLengthKeyword">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-12 control-label">SEO title</label>
+                    <div class="col-xs-12">
+                        <input type="text" class="form-control mb-3" name="seo_title" id="seo_title" size="60" v-model="title">
+                        <div class="progress">
+                            <div class="progress-bar" :class="classTile" role="progressbar"
+                                 aria-valuemin="0" aria-valuemax="<?php echo MAX_TITLE; ?>" :style="{'width': `${parseInt(width)}%`}">
+                                {{ countLengthTitle }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-12 control-label">SEO meta keyword</label>
+                    <div class="col-xs-12">
+                        <input type="text" class="form-control" name="seo_keyword" id="seo_keyword" value="<?php echo @$data->seo_keyword; ?>" size="60" maxlength="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-12 control-label">SEO meta description</label>
+                    <div class="col-xs-12">
+                        <textarea class="form-control mb-3" rows="9" cols="60" name="seo_description" id="seo_description" v-model="description"><?php echo @$data->seo_description; ?></textarea>
+                        <div class="progress">
+                            <div class="progress-bar" :class="classDes" role="progressbar"
+                                 aria-valuemin="0" aria-valuemax="<?php echo MAX_DES; ?>" :style="{'width': `${parseInt(widthDes)}%`}">
+                                {{ countLengthDescription }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php
+                TemplateHelper::dt_sepa();
+                ?>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>Phân tích SEO</h3>
+                        <ul class="list-check-seo">
+                            <li><i class="fa fa-circle mr-2" :class="classTextKey"></i>Độ dài từ khóa (Nên có <?php echo MIN_KEY; ?> - <?php echo MAX_KEY; ?> từ)</li>
+                            <li><i class="fa fa-circle mr-2" :class="classTextTitle"></i>Độ dài tiêu đề (Nên dài <?php echo MIN_TITLE; ?> - <?php echo MAX_TITLE; ?> ký tự)</li>
+                            <li><i class="fa fa-circle mr-2" :class="classTextDes"></i>Độ dài mô tả (Nên dài <?php echo MIN_DES; ?> - <?php echo MAX_DES; ?> ký tự)</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': checkKey, 'text-danger': !checkKey}"></i>Từ khóa trong tiêu đề chính</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': checkKeyDes, 'text-danger': !checkKeyDes}"></i>Từ khóa trong mô tả</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': classWord, 'text-danger': !classWord}"></i><span>Số lượng từ:</span>Nội dung có {{ countWord }} từ (Nên có ít nhất <?php echo MIN_CONTENT; ?> từ)</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': classInternal, 'text-danger': !classInternal}"></i><span>Internal Link:</span>Nội dung có {{ countInternalLink }} link nội bộ</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': classExternal, 'text-danger': !classExternal}"></i><span>External Link:</span>Nội dung có {{ countExternalLink }} link bên ngoài</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': classKeyContent, 'text-danger': !classKeyContent}"></i><span>Từ khóa trong nội dung:</span>Nội dung đã có {{ countKeyContent }} từ khóa</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': classKeyHeading, 'text-danger': !classKeyHeading}"></i><span>Tiêu đề phụ:</span>Tiêu đề phụ có {{ countKeyHeading }} từ khóa</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': imgHas, 'text-danger': !imgHas}"></i><span>Thẻ image:</span>{{ imgHas?'Đã có':'Thiếu' }}</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': imgKeyphrase, 'text-danger': !imgKeyphrase}"></i><span>Thuộc tính thẻ image:</span>{{ imgKeyphrase?'Đầy đủ':'Thiếu' }}</li>
+                            <!--                            <li><i class="fa fa-circle mr-2" :class="{'text-success': imgKeyphrase, 'text-danger': !imgKeyphrase}"></i><span>Thẻ H1:</span>trong nội dung</li>-->
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': haveH2, 'text-danger': !haveH2}"></i><span>Thẻ H2:</span>trong nội dung</li>
+                            <li><i class="fa fa-circle mr-2" :class="{'text-success': haveH3, 'text-danger': !haveH3}"></i><span>Thẻ H3:</span>trong nội dung</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <script type="module">
+
+                const regex = /(<([^>]+)>)/ig; // remove tag html
+                const regex_space = /\S+/g; // remove backspace
+                const regex_tag_heading = /(?<=(?!h1|h2|h3|h4|h5|h6)\>)(?!\<)(.+?)(?=\<\/.+?(?=h1|h2|h3|h4|h5|h6))/g; // remove tag heading
+                const regex_img = /<img [^>]*src="[^"]*"[^>]*>/gm;
+                const heading2 = /<(h2)(.*?)>((?:(?!<h\d+\b).)+?)<\/\1>/gm;
+                const heading3 = /<(h3)(.*?)>((?:(?!<h\d+\b).)+?)<\/\1>/gm;
+
+                var count_word = ($('#content').val())?$('#content').val().replace(regex, "").match(regex_space || [] ).length:0;
+                var count_internal_link = ($('#content').val().match(new RegExp('<?php echo $_SERVER['HTTP_HOST']; ?>', "gi")))?$('#content').val().match(new RegExp("<?php echo $_SERVER['HTTP_HOST']; ?>", "gi") || []).length:0;
+                var external_link = ($('#content').val().match(/href="(.*?)"/gi || []))?$('#content').val().match(/href="(.*?)"/gi || []):null;
+                var count_external_link = 0;
+                if (external_link){
+                    for (let i = 0; i < external_link.length; i++) {
+                        if (!external_link[i].includes('<?php echo $_SERVER['HTTP_HOST']; ?>')) {
+                            count_external_link ++;
+                        }
+                    }
+                }
+                var list_image = $('#content').val().match(regex_img);
+                var alt_img = [];
+                var img_keyphrase = false;
+                if (list_image){
+                    var count_image = list_image.length;
+                    for (let i = 0; i < count_image; i++){
+                        if (list_image[i].match(/alt="([^"]*)"/)[1]){
+                            alt_img[i] = list_image[i].match(/alt="([^"]*)"/)[1];
+                        }
+                    }
+                    img_keyphrase = (alt_img.length < list_image.length)?false:true;
+                }
+
+                if ($('#content').val()){
+                    var haveH2 = $('#content').val().match(heading2);
+                    var haveH3 = $('#content').val().match(heading3);
+                }
+
+                import { createApp } from 'vue'
+                var app = createApp({
+                    data() {
+                        return {
+                            keyword: '<?php echo @$key_word_seo->keywords; ?>',
+                            title: '<?php echo @$data->seo_title; ?>',
+                            width: 0,
+                            description: '<?php echo @$data->seo_description; ?>',
+                            widthDes: 0,
+                            classTile: 'progress-bar-danger',
+                            classDes: 'progress-bar-danger',
+                            classTextDes: 'text-danger',
+                            classTextTitle: 'text-danger',
+                            classTextKey: 'text-danger',
+                            checkKey: false,
+                            checkKeyDes: false,
+                            checkKeyUrl: false,
+                            countWord: count_word?count_word:0,
+                            classWord: false,
+                            internalLink: '<?php echo $_SERVER['HTTP_HOST']; ?>',
+                            countInternalLink: count_internal_link?count_internal_link:0,
+                            classInternal: false,
+                            countExternalLink: count_external_link?count_external_link:0,
+                            classExternal: false,
+                            countKeyContent: 0,
+                            classKeyContent: false,
+                            countKeyHeading: 0,
+                            classKeyHeading: false,
+                            imgHas: list_image?true:false,
+                            imgKeyphrase: img_keyphrase?img_keyphrase:false,
+                            haveH2: haveH2?true:false,
+                            haveH3: haveH3?true:false
+                        }
+                    },
+                    mounted() {
+                        self = this
+                        if (self.countWord >= 900){
+                            self.classWord = true
+                        }else {
+                            self.classWord = false
+                        }
+
+                        if (count_internal_link){
+                            self.classInternal = true
+                        }else {
+                            self.classInternal = false
+                        }
+
+                        if (count_external_link){
+                            self.classExternal = true
+                        }else {
+                            self.classExternal = false
+                        }
+                        if (this.keyword){
+                            self.countKeyContent = ($('#content').val().match(new RegExp(this.keyword, "gi")))?$('#content').val().match(new RegExp(this.keyword, "gi") || []).length:0;
+                            if(self.countKeyContent){
+                                self.classKeyContent = true
+                            }else {
+                                self.classKeyContent = false
+                            }
+                        }
+
+                        CKEDITOR.instances.content.on( 'change', function( evt ) {
+                            let html =  evt.editor.getData();
+                            let str =  html.replace(regex, "");
+                            if (str.length > 0){
+                                let count_srt = str.match(regex_space).length;
+                                self.countWord = count_srt
+                                if (self.countWord >= <?php echo MIN_CONTENT; ?>){
+                                    self.classWord = true
+                                }else {
+                                    self.classWord = false
+                                }
+                                if (self.keyword){
+                                    if (html.match(regex_tag_heading)){
+                                        let countHeading = (html.match(regex_tag_heading));
+                                        if (countHeading){
+                                            let countKeyInHeading = 0;
+                                            for (let i = 0; i < countHeading.length; i++) {
+                                                if (countHeading[i].includes(self.keyword)) {
+                                                    countKeyInHeading ++;
+                                                }
+                                            }
+                                            self.countKeyHeading = countKeyInHeading;
+                                            self.classKeyHeading = true
+                                        }else {
+                                            self.countKeyHeading = 0;
+                                            self.classKeyHeading = false
+                                        }
+                                    }
+
+                                    let countKeyInContent = (html.match(new RegExp(self.keyword, "gi")) || []).length;
+                                    if (countKeyInContent){
+                                        self.countKeyContent = countKeyInContent;
+                                        self.classKeyContent = true
+                                    }else {
+                                        self.countKeyContent = 0;
+                                        self.classKeyContent = false
+                                    }
+                                }
+
+                                let countInternalLinkInContent = (html.match(new RegExp(self.internalLink, "gi")) || []).length;
+                                if (countInternalLinkInContent){
+                                    self.countInternalLink = countInternalLinkInContent;
+                                    self.classInternal = true;
+                                }else {
+                                    self.classInternal = false;
+                                }
+
+                                let externalLinkInContent = (html.match(/href="(.*?)"/gi || []))?html.match(/href="(.*?)"/gi):null;
+                                let countExternalLinkInContent = 0;
+                                if (externalLinkInContent){
+                                    for (let i = 0; i < externalLinkInContent.length; i++) {
+                                        if (!externalLinkInContent[i].includes('<?php echo $_SERVER['HTTP_HOST']; ?>')) {
+                                            countExternalLinkInContent ++;
+                                        }
+                                    }
+                                    self.classExternal = true;
+                                    self.countExternalLink = countExternalLinkInContent;
+                                }else {
+                                    self.countExternalLink = 0;
+                                    self.classExternal = false;
+                                }
+                                self.haveH2 = html.match(heading2)?true:false;
+                                self.haveH3 = html.match(heading3)?true:false
+                            }
+                            self.imgHas = html.match(regex_img)?true:false
+                            if (html.match(regex_img)){
+                                let altImg = [];
+                                let countImage = html.match(regex_img).length;
+                                for (let i = 0; i < countImage; i++){
+                                    if (html.match(regex_img)[i].match(/alt="([^"]*)"/)[1]){
+                                        altImg[i] = html.match(regex_img)[i].match(/alt="([^"]*)"/)[1];
+                                    }
+                                }
+                                self.imgKeyphrase = (altImg.length < html.match(regex_img).length)?false:true;
+                            }
+                        });
+                    },
+                    methods: {
+                        countLengthKeyword() {
+                            let str = this.keyword;
+                            var arr = 0;
+                            if (str.length > 0){
+                                arr = str.match(regex_space).length;
+                            }
+                            if(arr >= <?php echo MIN_KEY; ?> && arr <= <?php echo MAX_KEY; ?>){
+                                this.classTextKey = 'text-success'
+                            }else if (arr > <?php echo MAX_KEY; ?>) {
+                                this.classTextKey = 'text-warning'
+                            }else {
+                                this.classTextKey = 'text-danger'
+                            }
+                        },
+                    },
+                    computed: {
+                        countLengthTitle() {
+                            let str = this.title.length;
+                            if (this.keyword.length >= 2){
+                                this.checkKey = this.title.includes(this.keyword);
+                            }
+
+                            this.width = (str/<?php echo MAX_TITLE; ?>)*100
+                            if(this.width >= 75 && this.width <= 100){
+                                this.classTile = 'progress-bar-success'
+                                this.classTextTitle = 'text-success'
+                            }else if (this.width > 100) {
+                                this.classTile = 'progress-bar-warning'
+                                this.classTextTitle = 'text-warning'
+                            }else {
+                                this.classTile = 'progress-bar-danger'
+                                this.classTextTitle = 'text-danger'
+                            }
+                            return parseInt(this.width);
+                        },
+                        countLengthDescription() {
+                            let str = this.description.length;
+                            if (this.keyword.length >= 2){
+                                this.checkKeyDes = this.description.includes(this.keyword);
+                            }
+                            this.widthDes = (str/<?php echo MAX_DES; ?>)*100
+                            if(this.widthDes >= 75 && this.widthDes <= 100){
+                                this.classDes = 'progress-bar-success',
+                                    this.classTextDes = 'text-success'
+                            }else if (this.widthDes > 100) {
+                                this.classDes = 'progress-bar-warning',
+                                    this.classTextDes = 'text-warning'
+                            }else {
+                                this.classDes = 'progress-bar-danger',
+                                    this.classTextDes = 'text-danger'
+                            }
+                            return parseInt(this.widthDes);
+                        },
+                    }
+                })
+
+                app.mount('#app')
+
+            </script>
+            <?php
+            echo  '</div><!--end: .form-contents-->';
+            echo  '</div>';
+            echo  '</div>';
         }
         if($seo){
             $col_seo = $col? 'col-sm-12':'';
@@ -858,6 +1189,6 @@ class Controllers
        function delete_file(){
         	$this->model->delete_file();
 	   }
-       
-       
+
+
 }
