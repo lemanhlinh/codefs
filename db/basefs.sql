@@ -11,7 +11,7 @@
  Target Server Version : 100424
  File Encoding         : 65001
 
- Date: 16/06/2022 15:54:40
+ Date: 10/10/2022 11:37:29
 */
 
 SET NAMES utf8mb4;
@@ -444,6 +444,23 @@ CREATE TABLE `fs_hits`  (
 
 -- ----------------------------
 -- Records of fs_hits
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for fs_keywords_seo
+-- ----------------------------
+DROP TABLE IF EXISTS `fs_keywords_seo`;
+CREATE TABLE `fs_keywords_seo`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `id_content` int NULL DEFAULT NULL,
+  `module` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `published` tinyint NULL DEFAULT 1,
+  `keywords` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of fs_keywords_seo
 -- ----------------------------
 
 -- ----------------------------
